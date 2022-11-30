@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.2-hudson-740-. --><xs:schema xmlns:tns="http://webservices/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://webservices/">
+
+<xs:element name="firmarDuplicado" type="tns:firmarDuplicado" />
+
+<xs:element name="firmarDuplicadoResponse" type="tns:firmarDuplicadoResponse" />
+
+<xs:element name="pingWebService" type="tns:pingWebService" />
+
+<xs:element name="pingWebServiceResponse" type="tns:pingWebServiceResponse" />
+
+<xs:complexType name="firmarDuplicado">
+<xs:sequence>
+<xs:element name="idscertificacion" type="xs:string" minOccurs="0" />
+<xs:element name="cicescinilib" type="xs:string" minOccurs="0" />
+<xs:element name="cveplan" type="xs:string" minOccurs="0" />
+<xs:element name="usuario" type="xs:string" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="firmarDuplicadoResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:wsfirmaDatosReturn" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="wsfirmaDatosReturn">
+<xs:sequence>
+<xs:element name="datosReturn">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="key" minOccurs="0" type="xs:anyType" />
+<xs:element name="value" minOccurs="0" type="xs:anyType" />
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="intData1" type="xs:int" />
+<xs:element name="intData2" type="xs:int" />
+<xs:element name="intData3" type="xs:int" />
+<xs:element name="mensaje" type="xs:string" minOccurs="0" />
+<xs:element name="returnCase" type="xs:int" />
+<xs:element name="stringData1" type="xs:string" minOccurs="0" />
+<xs:element name="stringData2" type="xs:string" minOccurs="0" />
+<xs:element name="stringData3" type="xs:string" minOccurs="0" />
+<xs:element name="tipoMensaje" type="xs:string" minOccurs="0" />
+<xs:element name="usuario" type="xs:string" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="pingWebService">
+<xs:sequence>
+<xs:element name="nombreUsuario" type="xs:string" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="pingWebServiceResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" />
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

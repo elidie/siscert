@@ -46,7 +46,8 @@ public class SISCERT_GlobalMethods  {
     public String urlSkinSecuRev = "imgs\\imgsSecu\\caratRev2.jpg";
     public String versionSistema;
     
-    public String urlGoogleDrive = "https://drive.google.com/open?id=1NBbmMIE4xx9dg9gd9mObqsYSF3b6cyq5";
+    public String urlGoogleDrive = "https://drive.google.com/drive/folders/1sMHCznTQnizT_xKKgPtcASMP5vIxmhzo?usp=sharing";
+                                    
     
     private final String meses[]={"ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"};
     private final String diasALos[]={"CERO","UN","DOS","TRES","CUATRO","CINCO","SEIS","SIETE","OCHO","NUEVE","DIEZ","ONCE","DOCE","TRECE","CATORCE","QUINCE","DIECISÉIS","DIECISIETE","DIECIOCHO","DIECINUEVE","VEINTE","VEINTIÚN","VEINTIDÓS","VEINTITRÉS","VEINTICUATRO","VEINTICINCO",
@@ -655,7 +656,7 @@ public class SISCERT_GlobalMethods  {
     }
     
     /*Método que tiene la función de validar la curp*/
-    public void validarCasocurp (String curp, String nombre, String primerApe, String segundoApe, int caso) throws Exception
+    public void validarCasocurp (String curp, String nombre, String primerApe, String segundoApe, int caso, String casoLlamada) throws Exception
     {
         SISCERT_ValidarCurp valcurp;
         switch (caso)
@@ -674,8 +675,8 @@ public class SISCERT_GlobalMethods  {
                         throw new Exception ("CURP_FECHAINVALIDA");
                     if (!curp.substring(11, 13).matches("AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE"))
                         throw new Exception ("CURP_ENTIDAD_INVALIDA");
-                    valcurp = new SISCERT_ValidarCurp(nombre, primerApe, segundoApe, curp.substring(4, 6), curp.substring(6,8), curp.substring(8, 10), curp.substring(10, 11), curp.substring(11, 13));
-                    if (!curp.substring(0, 16).equals(valcurp.curp()))
+                    valcurp = new SISCERT_ValidarCurp(nombre, primerApe, segundoApe, curp.substring(4, 6), curp.substring(6,8), curp.substring(8, 10), curp.substring(10, 11), curp.substring(11, 13), casoLlamada);
+                    if (!curp.substring(0, 16).equals(valcurp.curp()) && casoLlamada.equals("Nuevo"))
                         throw new Exception ("CURP_INCONGRUENTE");
                 break;
             case 3: 

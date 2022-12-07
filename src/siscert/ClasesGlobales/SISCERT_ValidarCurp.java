@@ -10,6 +10,7 @@ public class SISCERT_ValidarCurp {
     
     String VAPL1, VAPL11, VAPL2,VAPL21, VNOM, VNOM1;
     String VFEC_ANIO, VFEC_MES, VFEC_DIA, VSEXO, VENT, laU;
+    String casoLlamada;
     int VLEN;
     
     String [] ATAB1 = {"DA ","DAS ","DE ","DEL ","DER ","DI ","DIE ",
@@ -21,13 +22,14 @@ public class SISCERT_ValidarCurp {
                         "COLA","CULO","FALO","FETO","GETA","GUEI","GUEY","JETA",
                         "JOTO","KACA","KACO","KAGA","KAGO","KAKA","KAKO","KOGE",
                         "KOGI","KOJA","KOJE","KOJI","KOJO","KOLA","KULO","LILO",
-                        "LOCA","LOCO","LOKA","LOKO","MAME","MAMO","MEAR","MEAS",
-                        "MEON","MIAR","MION","MOCO","MOKO","MULA","MULO","NACA",
-                        "NACO","PEDA","PEDO","PENE","PIPI","PITO","POPO","PUTA",
-                        "PUTO","QULO","RATA","ROBA","ROBE","ROBO","RUIN","SENO",
-                        "TETA","VACA","VAGA","VAGO","VAKA","VUEI","VUEY","WUEI","WUEY"};
+                        "LOCA","LOCO","LOKA","LOKO","MALO","MALA","MAME","MAMO",
+                        "MEAR","MEAS","MEON","MIAR","MION","MOCO","MOKO","MULA",
+                        "MULO","NACA","NACO","PEDA","PEDO","PENE","PIPI","PITO",
+                        "POPO","PUTA","PUTO","QULO","RATA","ROBA","ROBE","ROBO",
+                        "RUIN","SENO","TETA","VACA","VAGA","VAGO","VAKA","VUEI",
+                        "VUEY","WUEI","WUEY"};
 
-    public SISCERT_ValidarCurp (String nombre, String primerApe, String segundoApe, String anioNac, String mesNac, String diaNac, String sexo, String entidad)
+    public SISCERT_ValidarCurp (String nombre, String primerApe, String segundoApe, String anioNac, String mesNac, String diaNac, String sexo, String entidad, String casoLlamada)
     {
         this.VNOM = nombre.replace("Á", "A").replace("É", "E").replace("Í", "I").replace("Ó", "O").replace("Ú", "U");
         this.VAPL1 = primerApe.replace("Á", "A").replace("É", "E").replace("Í", "I").replace("Ó", "O").replace("Ó", "O").replace("Ú", "U");
@@ -37,6 +39,7 @@ public class SISCERT_ValidarCurp {
         this.VFEC_DIA = diaNac;
         this.VSEXO = sexo;
         this.VENT = entidad;
+        this.casoLlamada = casoLlamada;
     }
     
     public String curp()
@@ -87,12 +90,14 @@ public class SISCERT_ValidarCurp {
         if (VNOM1.length()==0) VRAIZ += "X";
         else VRAIZ += VNOM1.charAt(0);
 
-        for(VI=0; VI<=80; VI++)
-        {
-            if (VRAIZ.equals(ATAB2[VI]))
+        if(casoLlamada.equals("Nuevo")) {
+            for(VI=0; VI<=80; VI++)
             {
-                VRAIZ = VRAIZ.charAt(0)+"X"+VRAIZ.substring(VRAIZ.length()-2,VRAIZ.length());//           RIGHT(VRAIZ,2)
-                break; //EXIT
+                if (VRAIZ.equals(ATAB2[VI]))
+                {
+                    VRAIZ = VRAIZ.charAt(0)+"X"+VRAIZ.substring(VRAIZ.length()-2,VRAIZ.length());//           RIGHT(VRAIZ,2)
+                    break; //EXIT
+                }
             }
         }
         //   *** FECHA NACIMIENTO, SEXO Y E.F.

@@ -697,7 +697,7 @@ public class SISCERT_FJUL17_Preescolar extends javax.swing.JDialog {
                 return mensaje.CrearCertifOrig (this,"DICTAMEN_INCOMPLETO","","");*/
             //************* VERIFICAMOS QUE LA CURP SEA CORRECTA ******************
             try{
-               global.validarCasocurp(txtCurp.getText().trim().toUpperCase(),txtNombre.getText().toUpperCase().trim(), txtApePaterno.getText().toUpperCase().trim(), txtApeMaterno.getText().toUpperCase().trim(),idsCasocurp.get(cbxCasocurp.getSelectedIndex()));
+               global.validarCasocurp(txtCurp.getText().trim().toUpperCase(),txtNombre.getText().toUpperCase().trim(), txtApePaterno.getText().toUpperCase().trim(), txtApeMaterno.getText().toUpperCase().trim(),idsCasocurp.get(cbxCasocurp.getSelectedIndex()),casoLlamada);
             }catch (Exception ex) {   return mensaje.Preescolar(ex.getMessage(),"","");   }
             //*********************************************************************
             if (txtAnioAcreditacion.getText().trim().length() != 4 )
@@ -1619,7 +1619,7 @@ public class SISCERT_FJUL17_Preescolar extends javax.swing.JDialog {
 
     private void btnCrearCurpDefaultActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearCurpDefaultActionPerformed
         // TODO add your handling code here:
-        valcurp = new SISCERT_ValidarCurp(txtNombre.getText().trim().toUpperCase(), txtApePaterno.getText().trim().toUpperCase(), txtApeMaterno.getText().trim().toUpperCase(), "50", "01", "01", "-", "**");
+        valcurp = new SISCERT_ValidarCurp(txtNombre.getText().trim().toUpperCase(), txtApePaterno.getText().trim().toUpperCase(), txtApeMaterno.getText().trim().toUpperCase(), "50", "01", "01", "-", "**",casoLlamada);
         txtCurp.setText(valcurp.curp());
     }//GEN-LAST:event_btnCrearCurpDefaultActionPerformed
 

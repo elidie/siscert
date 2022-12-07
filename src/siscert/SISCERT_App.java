@@ -21,7 +21,7 @@ public class SISCERT_App
     private SISCERT_Mensajes mensaje;
     private SISCERT_QueriesInformix qryIfx;
     
-    private final String versionSistema = "3.4.0", nombreSistema = "SISCERT";
+    private final String versionSistema = "3.4.2", nombreSistema = "SISCERT";
     private final int tipoVersion = 1;                                          //0:Actualización, 1:Completa
     private final String tituloSistema = nombreSistema+" v"+versionSistema+" - Sistema para impresión de duplicado de certificados y certificaciones.";
     

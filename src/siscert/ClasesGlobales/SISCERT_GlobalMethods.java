@@ -129,11 +129,17 @@ public class SISCERT_GlobalMethods  {
         //-------------- Convertimos la palabra del dia en número --------------
         for (int i=0; i<diasALos.length; i++)
             if (day.toUpperCase().equals(diasALos[i]) || i==1 && day.toUpperCase().equals("PRIMER"))
+            {
                 dia = (i<10?"0":"") + i;
+                i = diasALos.length;
+            }
         //-------------- Convertimos la palabra del mes en número --------------
         for (int i=0; i<meses.length; i++)
             if (month.toUpperCase().equals(meses[i]))
+            {
                 mes = ((i+1)<10?"0":"") + (i+1);
+                i = meses.length;
+            }
         //-------------- Convertimos la palabra del año en número --------------
         year = year.toUpperCase();
         if (year.contains("MIL NOVECIENTOS")){
@@ -154,6 +160,7 @@ public class SISCERT_GlobalMethods  {
         }        
            
         year = (year.equals("DÓS")) ? year.replace("DÓS","DOS"): year;
+        year = (year.equals("TRÉS")) ? year.replace("TRÉS","TRES"): year;
         //Convertimos las unidades o parte de las decenas antes del 21
         for (int i=0; i<=20; i++)            
             if (year.equals(diasEl[i])){

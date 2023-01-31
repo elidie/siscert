@@ -89,8 +89,9 @@ public class SISCERT_ValidarCurp {
         //   *** NOMBRE
         if (VNOM1.length()==0) VRAIZ += "X";
         else VRAIZ += VNOM1.charAt(0);
-
-        if(casoLlamada.equals("Nuevo")) {
+        
+        //**************** Desactivar curp para caso de nuevo (26-01-2023 indicaciones de Vicente ************/
+        /*if(casoLlamada.equals("Nuevo")) {
             for(VI=0; VI<=80; VI++)
             {
                 if (VRAIZ.equals(ATAB2[VI]))
@@ -99,7 +100,8 @@ public class SISCERT_ValidarCurp {
                     break; //EXIT
                 }
             }
-        }
+        }*/
+        
         //   *** FECHA NACIMIENTO, SEXO Y E.F.
         VRAIZ += VFEC_ANIO+VFEC_MES+VFEC_DIA+VSEXO+VENT;
        /*         VRAIZ := VRAIZ+RIGHT(STR(VFEC_ANIO,4),2)+

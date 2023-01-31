@@ -625,7 +625,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     {"idcct", idCCT},
                     {"tablaescuela", "'"+tablaEscuela+"'"},
                     {"idhescuela", idHEscuela},
-                    {"escuela", "'"+escuela.trim().toUpperCase()+"'"},
+                    {"escuela", "\""+escuela.trim().toUpperCase()+"\""},
                     {"cct", "'"+cctEscuela.trim().toUpperCase()+"'"},
                     {"fecha", "'"+fecha+"'"},
                     {"juridico", "'"+juridico.trim().toUpperCase()+"'"},
@@ -680,7 +680,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "idcct="+idCCT+", " +
                         "idhescuela="+idHEscuela+", " +
                         "tablaescuela='"+tablaEscuela+"', " +
-                        "escuela='"+escuela.trim().toUpperCase()+"', " +
+                        "escuela=\""+escuela.trim().toUpperCase()+"\", " +
                         "cct='"+cctEscuela.trim().toUpperCase()+"', " +
                         "fecha='"+fecha+"', " +
                         "juridico='"+juridico.trim().toUpperCase()+"', " +
@@ -772,7 +772,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     {"idcct", idCCT},
                     {"tablaescuela", "'"+tablaEscuela+"'"},
                     {"idhescuela", idHEscuela},
-                    {"escuela", "'"+escuela.trim().toUpperCase()+"'"},
+                    {"escuela", "\""+escuela.trim().toUpperCase()+"\""},
                     {"cct", "'"+cctEscuela.trim().toUpperCase()+"'"},
                     {"fecha", "'"+fechaExpedicion+"'"},
                     {"juridico", "'"+juridico.trim().toUpperCase()+"'"},
@@ -835,7 +835,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "idcct="+idCCT+", " +
                         "idhescuela="+idHEscuela+", " +
                         "tablaescuela='"+tablaEscuela+"', " +
-                        "escuela='"+escuela.trim().toUpperCase()+"', " +
+                        "escuela=\""+escuela.trim().toUpperCase()+"\", " +
                         "cct='"+cctEscuela.trim().toUpperCase()+"', " +
                         "fecha='"+fechaExpedicion+"', " +                    
                         "plan_estud='"+planEstudios.trim()+"', " +
@@ -1772,7 +1772,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                             {"libro","'"+global.libro+"'"},
                             {"foja","'"+global.foja+"'"},
                             {"folio",(global.idFormatCertAImprimir<8)?"null":"'"+global.folio+"'"},
-                            {"escuela",(global.idFormatCertAImprimir<8)?"null":"'"+global.escuela+"'"},
+                            {"escuela",(global.idFormatCertAImprimir<8)?"null":"\""+global.escuela+"\""},
                             {"cct",(global.idFormatCertAImprimir<8)?"null":"'"+global.cctEscuela+"'"},
                             {"fecha","'"+global.fechaExpedicion+"'"},  /*ok*/
                             {"juridico",(global.idFormatCertAImprimir<8)?"null":"'"+global.juridico+"'"},

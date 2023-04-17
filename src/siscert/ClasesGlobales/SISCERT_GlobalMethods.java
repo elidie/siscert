@@ -683,7 +683,7 @@ public class SISCERT_GlobalMethods  {
                     if (!curp.substring(11, 13).matches("AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE"))
                         throw new Exception ("CURP_ENTIDAD_INVALIDA");
                     valcurp = new SISCERT_ValidarCurp(nombre, primerApe, segundoApe, curp.substring(4, 6), curp.substring(6,8), curp.substring(8, 10), curp.substring(10, 11), curp.substring(11, 13), casoLlamada);
-                    if (!curp.substring(0, 16).equals(valcurp.curp()) && casoLlamada.equals("Nuevo"))
+                    if (!curp.substring(4, 16).equals(valcurp.curp()) && casoLlamada.equals("Nuevo"))
                         throw new Exception ("CURP_INCONGRUENTE");
                 break;
             case 3: 

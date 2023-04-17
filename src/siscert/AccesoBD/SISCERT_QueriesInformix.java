@@ -561,7 +561,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             boolean esCEBAS, String diaAcrediCEBAS, String mesAcreditacion, String ai, String anioAcreditacion, String fechaAcrediLetCEBAS, String promedioNum, String promedioLetra, String fecha,
             String libro,String foja, String folio, String idFormatFol_folLet_folNum[], String idCCT, String idHEscuela, String tablaEscuela,String escuela, String cctEscuela, String cveturno,  String juridico, String idleyenda_lugarValidacion, boolean actualizarVars, String idFormatoCert, String casoNumSolicitud, String numSolicitud, boolean cambioEnCurpONombre, String cveUnidad59) throws SQLException, Exception
     {
-        String diaLetra, mesAñoLetra, fechaExpedLet, temp="", idfolim_var, casoInsertSICEEB="", numSol;
+        String diaLetra, mesAñoLetra, fechaExpedLet, temp="", idfolim_var, casoInsertSICEEB="", numSol,escuela_str="";
         
         global.fecha = fecha;
         global.partirFechaEnLetra();
@@ -586,7 +586,11 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             numSol = obtenerNumSolicitud(global.cveunidad, global.cveplan, idFormatoCert, cicescinilib);
         else
             numSol = numSolicitud;
-
+        if(escuela.contains("\"")){
+            escuela_str = "'"+escuela.trim().toUpperCase()+"'";
+        } else {
+            escuela_str = "\""+escuela.trim().toUpperCase()+"\"";
+        }
         try 
         {
             if (casoConsulta.equals("Nuevo") || casoConsulta.equals("Importar"))
@@ -625,7 +629,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     {"idcct", idCCT},
                     {"tablaescuela", "'"+tablaEscuela+"'"},
                     {"idhescuela", idHEscuela},
-                    {"escuela", "\""+escuela.trim().toUpperCase()+"\""},
+                    {"escuela", escuela_str},
                     {"cct", "'"+cctEscuela.trim().toUpperCase()+"'"},
                     {"fecha", "'"+fecha+"'"},
                     {"juridico", "'"+juridico.trim().toUpperCase()+"'"},
@@ -680,7 +684,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "idcct="+idCCT+", " +
                         "idhescuela="+idHEscuela+", " +
                         "tablaescuela='"+tablaEscuela+"', " +
-                        "escuela=\""+escuela.trim().toUpperCase()+"\", " +
+                        "escuela="+escuela_str+", " +
                         "cct='"+cctEscuela.trim().toUpperCase()+"', " +
                         "fecha='"+fecha+"', " +
                         "juridico='"+juridico.trim().toUpperCase()+"', " +
@@ -710,7 +714,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             String idFormatoCert, String casoNumSolicitud, String numSolicitud, boolean cambioEnCurpONombre, String cveUnidad59) throws SQLException, Exception
     {
         Map datosParaQuery = new LinkedHashMap();
-        String  fechaExpedLet, temp="", idfolim_var, casoInsertSICEEB="", numSol="";
+        String  fechaExpedLet, temp="", idfolim_var, casoInsertSICEEB="", numSol="",escuela_str="";
         
         global.fecha = fechaExpedicion;
         global.partirFechaEnLetra();
@@ -732,7 +736,11 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                 numSol = obtenerNumSolicitud(global.cveunidad, global.cveplan, idFormatoCert, cicescinidup);
             else
                 numSol = numSolicitud;
-            
+            if(escuela.contains("\"")){
+                escuela_str = "'"+escuela.trim().toUpperCase()+"'";
+            } else {
+                escuela_str = "\""+escuela.trim().toUpperCase()+"\"";
+            }
             if (casoConsulta.equals("Nuevo") || casoConsulta.equals("Importar"))
             {
                 Object datosParaQry[][] = new Object[][]{
@@ -772,7 +780,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     {"idcct", idCCT},
                     {"tablaescuela", "'"+tablaEscuela+"'"},
                     {"idhescuela", idHEscuela},
-                    {"escuela", "\""+escuela.trim().toUpperCase()+"\""},
+                    {"escuela", escuela_str},
                     {"cct", "'"+cctEscuela.trim().toUpperCase()+"'"},
                     {"fecha", "'"+fechaExpedicion+"'"},
                     {"juridico", "'"+juridico.trim().toUpperCase()+"'"},
@@ -835,7 +843,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "idcct="+idCCT+", " +
                         "idhescuela="+idHEscuela+", " +
                         "tablaescuela='"+tablaEscuela+"', " +
-                        "escuela=\""+escuela.trim().toUpperCase()+"\", " +
+                        "escuela="+escuela_str+", " +
                         "cct='"+cctEscuela.trim().toUpperCase()+"', " +
                         "fecha='"+fechaExpedicion+"', " +                    
                         "plan_estud='"+planEstudios.trim()+"', " +
@@ -1002,13 +1010,13 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             {
                 //Verificamos si está registrado en al"SELECT idalu FROM alumnogrado WHERE idalu="+idalu+" AND grado="+grado+" AND cveplan="+cveplanumnogrado
                 rs = stm.executeQuery("SELECT idalu FROM alumnogrado WHERE idalu="+idalu+" AND grado="+grado+" AND cveplan="+cveplan+" AND estatusgrado='C'");
-                if (!rs.next()){                                                //Si no está registrado, intentamos registralo
+                if (!rs.next()) {                                                //Si no está registrado, intentamos registralo
                     if (obtenerDato("SELECT cicescini FROM cicloescolar WHERE cicescini="+cicescini).trim().equals(""))
                         stm.execute("INSERT INTO cicloescolar (cicescini, cicescfin, descicesc, fecini, fecfin, estatus) VALUES ("+cicescini+" ,"+(cicescini+1)+", '"+cicescini+" - "+(cicescini+1)+"', TO_DATE('"+cicescini+"/09/01','%Y/%m/%d'),TO_DATE('"+(cicescini+1)+"/06/30','%Y/%m/%d'),'I')");
                     stm.execute("INSERT INTO alumnogrado values ("+ idalu+", "+cicescini+" ,"+(cicescini+1)+" ,"+ grado+", 0, 0, 0, "               //   /---El 1 en peso, será un distintivo para indicar que el ingreso fue por SiCEEB web
                             + "'"+cveturno+"', "+idcct+", 'INS','C',"+cveplan+",'"+cveprograma.toUpperCase()+"','A', "+ "'SIN REGISTRAR', '00000', NULL, NULL, 1, 0.00, 0, "
                                 + "0.0,0.0,"+calif+", null,'P','NA','N', 1,'E', 0, 0, 0, NULL, NULL, NULL, '', '"+usuario.toUpperCase()+"', date(current), extend(current, hour to minute))" );
-                }else{                                                      //Si ya está registrado
+                } else {                                                      //Si ya está registrado
                     //Verificamos si ya tiene registrado un certificado impreso
                     rs = stm.executeQuery("SELECT foliolet, folionum FROM folios_impre WHERE idalu="+idalu+" AND grado="+grado+" AND cveplan="+cveplan);
                     if (rs.next())                                              //Si ya tiene un certificado impreso

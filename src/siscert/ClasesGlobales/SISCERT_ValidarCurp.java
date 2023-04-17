@@ -125,7 +125,7 @@ public class SISCERT_ValidarCurp {
         VRAIZ = P12(VAPL21,VRAIZ);
         VRAIZ = P12(VNOM1,VRAIZ);
         //   *** FIN DE RUTINAS
-        return VRAIZ;
+        return VRAIZ.substring(4, 16);
     }
     
     //** SUSTITUYE CARACTERES ESPECIALES POR X

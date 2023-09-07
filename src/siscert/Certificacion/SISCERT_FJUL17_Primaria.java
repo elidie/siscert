@@ -621,7 +621,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
                                     conexion.verificarPermisoConPassword (passwordParaNoValidarEdad, global.capturista, 18);
                                 }
                             }else
-                                if (!"".equals(mensajeEdad=global.cumpleConLaEdad (txtCurp.getText().substring(4,10), ""+cicIniCLD, ""+global.cveplan, "6", id_cct_esc_cvet_turno.get(0)[0], id_cct_esc_cvet_turno.get(0)[1].substring(2,5), "20", conexion)))
+                                if (!"".equals(mensajeEdad=global.cumpleConLaEdad (txtCurp.getText().substring(4,10), ""+cicIniCLF, ""+global.cveplan, "6", id_cct_esc_cvet_turno.get(0)[0], id_cct_esc_cvet_turno.get(0)[1].substring(2,5), "20", conexion)))
                                     return mensaje.CrearCertifOrig(this,"NO_CUMPLE_CON_EDAD",mensajeEdad,"");
                             
                         }catch (Exception ex){
@@ -827,7 +827,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
             idscctDefault.put(ides[i][1], ides[i][0]);
         //Clasificamos por modalidad-descripción
         for (int i=0; i<ides.length; i++){
-            v=ides[i][2].split(",");
+            v=ides[i][2].split(","); 
             for (int j=0; j<v.length; j++)
                 idscctDefault.put(v[j], ides[i][1]);
         }

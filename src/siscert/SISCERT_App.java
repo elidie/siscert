@@ -51,7 +51,7 @@ public class SISCERT_App
             frmVentanaPrincipal.setExtendedState(JFrame.MAXIMIZED_BOTH);
             //frmVentanaPrincipal.setResizable(false);
             frmVentanaPrincipal.setVisible(true);
-        }catch (Exception ex){ mensaje.General(null,"GENERAL", ""+ex, ""); System.exit(0); }
+        } catch (Exception ex) { mensaje.General(null,"GENERAL", ""+ex, ""); System.exit(0); }
     }
 
     public void ventanaLoginUser ()
@@ -65,6 +65,5 @@ public class SISCERT_App
             ventanaLoginUser.setTitle("Inicio de sesión - SISCERT v" + versionSistema);
         }
         ventanaLoginUser.setVisible(true);                    //mostramos la ventana*/
-    }
-    
+    }    
 }

@@ -1046,7 +1046,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                             rs = stm.executeQuery("SELECT TRIM(curp) AS curp FROM folios_impre WHERE folionum="+folioNum+" AND cct='"+cct+"' AND cicescini="+cicescini);
                         
                         i=0;
-                        while (rs.next()){
+                        while (rs.next()) {
                             if (i>0) temp+=", "; i++;
                             temp+=rs.getString("curp");
                         }
@@ -1102,13 +1102,13 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                 }else
                     throw new SQLException (ex); 
             }
-        }else if(alum_Estatus.equals("U")){
+        }else if(alum_Estatus.equals("U")) {
             if (!"SI".equals(obtenerDato("SELECT validado FROM alumno2 WHERE idalu="+idalu))){
                 try{
                     rs = stm.executeQuery("SELECT idalu FROM alumno WHERE curp='"+curpRaiz.toUpperCase()+"' AND nombre=\""+nombre.trim().toUpperCase()+"\" AND apepat=\""+primerApe.trim().toUpperCase()+"\" AND apemat=\""+segundoApe.trim().toUpperCase()+"\" AND fecnac=TO_DATE('"+fechaNacimiento+"','%Y/%m/%d') AND sexo='"+sexo.toUpperCase()+"' AND curp16='"+curpRaiz.substring(0,16).toUpperCase()+"'");
                     if (!rs.next()) {
                         stm.execute("UPDATE alumno SET curp='"+curpRaiz.toUpperCase()+"', nombre=\""+nombre.trim().toUpperCase()+"\", apepat=\""+primerApe.trim().toUpperCase()+"\", apemat=\""+segundoApe.trim().toUpperCase()+"\", "
-                                +"fecnac=TO_DATE('"+fechaNacimiento+"','%Y/%m/%d'), sexo='"+sexo.toUpperCase()+"', curp16='"+curpRaiz.substring(0,16).toUpperCase()+"', fecha=date(current), hora=extend(current, hour to minute) WHERE idalu="+idalu);
+                                +"fecnac=TO_DATE('"+fechaNacimiento+"','%Y/%m/%d'), sexo='"+sexo.toUpperCase()+"', curp16='"+curpRaiz.substring(0,16).toUpperCase()+"',usuario='"+usuario.toUpperCase()+"', fecha=date(current), hora=extend(current, hour to minute) WHERE idalu="+idalu);
                         /*if (!(cveprograma=getCveprograma (cicescini, cveplan, grado, idcct)).equals(""))
                             qurySec="idcct="+idcct+", cveprograma='"+cveprograma+"', ";
                         stm.execute("UPDATE alumnogrado SET "+qurySec+" promediogral="+calif+" WHERE idalu="+idalu+" AND grado="+grado+" AND cicescini="+cicescini+"");*/

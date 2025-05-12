@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="certificacionSemielectronico_2019" language="groovy" pageWidth="612" pageHeight="792" columnWidth="556" leftMargin="28" rightMargin="28" topMargin="28" bottomMargin="20" uuid="e82edf05-d869-4f9f-9841-4213bc9522e5">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="576"/>
+	<parameter name="cicescini" class="java.lang.String"/>
+	<parameter name="idalu" class="java.lang.String"/>
+	<parameter name="idfolimpre" class="java.lang.String"/>
+	<parameter name="cicescinilib" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select sc.cveplan,
+  (CASE sc.cveplan WHEN 2 THEN 'SECUNDARIA' WHEN 1 THEN 'PRIMARIA' WHEN 3 THEN 'PREESCOLAR' END) AS nivelEduc,
+  (TRIM(sc.nombre)||' '||TRIM(sc.apepat)||' '||TRIM(sc.apemat)) AS nom_tot,
+  TRIM(sc.curp) AS curp,
+  (CASE sc.cveplan WHEN 2 THEN 'Secundaria' WHEN 1 THEN 'Primaria' WHEN 3 THEN 'Preescolar' END) AS educacion,
+  TRIM(sc.escuela) AS nombreEscuela,
+  TRIM(sc.cct) AS cct, sc.usuario,
+  sc.cicescinilib,sc.cicinilib_cert,sc.ciciniestud,sc.cveunidad,
+  sc.fechainsert,sc.dia_acredi,
+  lower(sc.mes_acredi) as mes_acredi,sc.af,sc.libro,sc.foja,sc.prom_letra,
+  (case when sc.promedio='A' then CAST('99.9' as real) else CAST(sc.promedio as real) end) AS promedio,
+  sc.promedio as promedio_str,
+  (case when sc.prom_educprim='A' then CAST('99.9' as real) else CAST(sc.prom_educprim as real) end) AS prom_educprim,
+  sc.prom_educprim as prom_educprim_str,
+  (case when sc.prom_educbasic='A' then CAST('99.9' as real) else CAST(sc.prom_educbasic as real) end) AS prom_educbasic,
+  sc.prom_educbasic as prom_educbasic_str,
+  sc.promlet_educbasic,
+  lower(sfi.fecha_exped_let) as alos,
+  (SELECT TRIM(desmunicipio_tipotit) FROM
+	municipio where cvemunicipio=390 AND cveentidad=20)||', '||'Oaxaca' AS expedidoEn,
+  ff.firmante,
+  ff.cargofirmante,
+  ff.numcertfirmante,
+  sfe.sellodigitalieepo,
+  TO_CHAR (sfe.fechatimbradoieepo, '%Y-%m-%d %H:%M:%S') AS fechatimbradosep,
+  sfe.sellodigitalieepo AS selloDigitalIEEPO,
+  sfe.sellodigitalsep AS selloDigitalSEP,
+  sfe.foliodigital AS folio
+from siscert_certificacion sc, siscert_folimpre sfi, siscert_firmaelec sfe, firma_firmante ff
+where sc.idcertificacion = sfi.idcertificacion
+AND sfi.idfolimpre=sfe.idfolimpre
+AND sfe.idfirmante=ff.idfirmante
+AND sfi.cicescinilib = $P{cicescinilib}
+AND sfe.cicescinilib = $P{cicescinilib}
+AND sc.juridico = 'VERIFICADO'
+AND sc.idalu = $P{idalu}
+AND sfi.idfolimpre = $P{idfolimpre}
+AND sfe.estatus_firma = 100
+ORDER BY sc.cveunidad,usuario ASC]]>
+	</queryString>
+	<field name="cveplan" class="java.lang.Integer"/>
+	<field name="niveleduc" class="java.lang.String"/>
+	<field name="nom_tot" class="java.lang.String"/>
+	<field name="curp" class="java.lang.String"/>
+	<field name="educacion" class="java.lang.String"/>
+	<field name="nombreescuela" class="java.lang.String"/>
+	<field name="cct" class="java.lang.String"/>
+	<field name="usuario" class="java.lang.String"/>
+	<field name="cicescinilib" class="java.lang.Integer"/>
+	<field name="cicinilib_cert" class="java.lang.Short"/>
+	<field name="ciciniestud" class="java.lang.Short"/>
+	<field name="cveunidad" class="java.lang.String"/>
+	<field name="fechainsert" class="java.sql.Date"/>
+	<field name="dia_acredi" class="java.lang.String"/>
+	<field name="mes_acredi" class="java.lang.String"/>
+	<field name="af" class="java.lang.Short"/>
+	<field name="libro" class="java.lang.String"/>
+	<field name="foja" class="java.lang.String"/>
+	<field name="prom_letra" class="java.lang.String"/>
+	<field name="promedio" class="java.lang.Float"/>
+	<field name="promedio_str" class="java.lang.String"/>
+	<field name="prom_educprim" class="java.lang.Float"/>
+	<field name="prom_educprim_str" class="java.lang.String"/>
+	<field name="prom_educbasic" class="java.lang.Float"/>
+	<field name="prom_educbasic_str" class="java.lang.String"/>
+	<field name="promlet_educbasic" class="java.lang.String"/>
+	<field name="alos" class="java.lang.String"/>
+	<field name="expedidoen" class="java.lang.String"/>
+	<field name="firmante" class="java.lang.String"/>
+	<field name="cargofirmante" class="java.lang.String"/>
+	<field name="numcertfirmante" class="java.lang.String"/>
+	<field name="sellodigitalieepo" class="java.lang.String"/>
+	<field name="fechatimbradosep" class="java.lang.String"/>
+	<field name="sellodigitalsep" class="java.lang.String"/>
+	<field name="folio" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="123" splitType="Stretch">
+			<image scaleImage="RealSize" hAlign="Right" vAlign="Middle">
+				<reportElement x="290" y="0" width="147" height="45" uuid="1d5d6bf3-30e5-4560-ac34-56698921b8cf"/>
+				<imageExpression><![CDATA["../imgs/Isologo y escudo - Gobierno del Estado.png"]]></imageExpression>
+			</image>
+			<image scaleImage="RealSize" vAlign="Bottom">
+				<reportElement x="119" y="0" width="157" height="45" uuid="3af0bb7e-2348-4107-a317-b54f3a784e5f"/>
+				<imageExpression><![CDATA["../imgs/educacion y barra.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="0" y="51" width="556" height="18" uuid="75def2d4-f814-4c32-be8a-17f9fb7fe538"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="MontserratBoldReport" size="14.5"/>
+				</textElement>
+				<text><![CDATA[SISTEMA EDUCATIVO NACIONAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="69" width="556" height="12" uuid="7e7e6c5d-ebfd-478c-86e5-0c2b26f1ff39"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="MontserratBoldReport" size="8"/>
+				</textElement>
+				<text><![CDATA[INSTITUTO ESTATAL DE EDUCACIÓN PÚBLICA DE OAXACA]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="82" width="556" height="14" uuid="c8c9b5c8-4875-4316-8889-55b89412e652"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="MontserratBoldReport" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CERTIFICACIÓN DE EDUCACIÓN "+$F{niveleduc}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="621" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{cveplan}==2 || $F{cveplan}==1]]></printWhenExpression>
+			<textField>
+				<reportElement x="0" y="0" width="556" height="105" uuid="bed462cb-bd3f-4816-b85b-4fe92c7e5ee2"/>
+				<textElement textAlignment="Justified">
+					<font fontName="MontserratRegularReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA") || $F{cct}.trim().contains("20EIS")?
+(
+    "El Departamento de Registro y Certificación Escolar, con Clave de Centro de Trabajo 20ADG0059B, CERTIFICA que "+$F{nom_tot}+($F{curp}.length()==18?", con CURP "+$F{curp}:"")+", cursó y acreditó la Educación "+$F{educacion}+" de acuerdo al Plan y Programas de Estudio vigentes, "+
+    "con el promedio final que se indica, según constancias que obran en el archivo de Control Escolar.\n"
+):(
+    "El Departamento de Registro y Certificación Escolar, CERTIFICA que "+$F{nom_tot}+($F{curp}.length()==18?", con CURP "+$F{curp}:"")+", cursó y acreditó la Educación "+($F{af}==2013 && $F{cveplan}==2 && $F{promlet_educbasic}.length()>0 ? "Básica":$F{educacion})+" en "+$F{mes_acredi}+ " de " + $F{af} + ", en " +
+    (
+    $F{nombreescuela}.toUpperCase().startsWith("ESCUELA")
+    ?"la "
+    : ($F{nombreescuela}.toUpperCase().startsWith("COLEGIO") || $F{nombreescuela}.toUpperCase().startsWith("INSTITUTO")
+      ?"el "
+      :"la ESCUELA "
+      )
+    )
+    +$F{nombreescuela}+", con Clave de Centro de Trabajo "+$F{cct}+", con el promedio final que se indica, según constancias que obran en el archivo de Control Escolar.\n"
+    +($F{cveplan}==2 && $F{af}==2013 && $F{promlet_educbasic}.length()>0  ? "Promedio de Educación Primaria ("+$F{prom_educprim_str}+") / Promedio de Educación Secundaria ("+$F{promedio_str}+")\n":"")
+)]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="158" y="129" width="96" height="20" uuid="e77c691d-a713-43d5-ac8f-139f0eb3f60e">
+					<printWhenExpression><![CDATA[$F{cveplan}==1 || $F{cveplan}==2]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="MontserratBoldReport" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PROMEDIO FINAL :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="263" y="129" width="50" height="20" uuid="9c4066f0-dd09-49e8-be2b-7775a0c6f7c0">
+					<printWhenExpression><![CDATA[$F{cveplan}==1 || $F{cveplan}==2]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="MontserratRegularReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA") ?
+(
+    ""
+):
+( ($F{af}==2013 && $F{cveplan}==2 && $F{promlet_educbasic}.length()>0) ?
+    ( $F{prom_educbasic} >= 6.0 && $F{prom_educbasic} <= 10.0?
+        (
+            $F{prom_educbasic} == 10.0
+            ? "10"
+            : $F{prom_educbasic_str}
+        )
+        :"A"
+    ):
+    ( $F{promedio} >= 6.0 && $F{promedio} <= 10.0 ?
+        (
+            $F{promedio} == 10.0
+            ? "10"
+            : $F{promedio_str}
+        )
+        :"A"
+    )
+)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="328" y="129" width="177" height="20" uuid="5b56bb5f-b918-4a80-8465-85548f33fd9a">
+					<printWhenExpression><![CDATA[$F{cveplan}==1 || $F{cveplan}==2]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="MontserratRegularReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA")?
+(
+    ""
+):
+( ($F{af}==2013 && $F{cveplan}==2  && $F{promlet_educbasic}.length()>0) ?
+    (
+        $F{prom_educbasic} >= 6.0 && $F{prom_educbasic} <= 10.0 ?
+            $F{promlet_educbasic} : "ACREDITADO"
+    ):
+    (
+        $F{promedio} >= 6.0 && $F{promedio} <= 10.0 ? $F{prom_letra} : "ACREDITADO"
+    )
+)]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="253" width="90" height="11" uuid="a24cef55-00c0-4490-8941-2e9eca7d9b3a"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Autoridad educativa:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="91" y="253" width="443" height="11" uuid="9d28b883-4cf4-4914-81ac-033c0ea6858f"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firmante} + ", " + $F{cargofirmante}.toUpperCase()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="264" width="146" height="11" uuid="7722271d-c2f3-49b3-b061-21c3ee033efd"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[No. certificado autoridad educativa: ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="149" y="264" width="385" height="11" uuid="3865c25b-96b9-4b77-bbdc-60cdaea850ce"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numcertfirmante}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="274" width="135" height="11" uuid="d159904e-58b7-48b1-8547-c0f142b3eb3b"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Sello digital autoridad educativa:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="284" width="556" height="48" uuid="3fb9c8c8-28fc-4de6-abae-631e1e4f0dfd"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sellodigitalieepo}+"\n"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="346" width="113" height="11" uuid="f94914ae-8c42-4659-b0f4-3701ec763c0d"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora de timbrado:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="114" y="346" width="346" height="11" uuid="7912f3b6-9500-4058-a85a-daf71b5e0360"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechatimbradosep}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="102" y="428" width="454" height="127" uuid="a7e9eada-d68f-4ae0-99e5-c258b050903c"/>
+				<textElement textAlignment="Justified">
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Con fundamento en lo dispuesto por el artículo 141 de la Ley General de Educación, los certificados de estudios expedidos por instituciones del Sistema Educativo Nacional, tienen validez en la República Mexicana sin necesidad de trámites adicionales de autenticación o legalización, favoreciendo el tránsito del educando por el Sistema Educativo Nacional.
+
+El presente documento electrónico ha sido firmado mediante el uso de la firma electrónica avanzada por el servidor público competente, amparada por un certificado digital vigente a la fecha de su elaboración, y es válido de conformidad con lo dispuesto en los artículos 1, 8, 9, 11, 12 y 18 de la Ley de Firma Electrónica Avanzada para el Estado de Oaxaca y sus municipios.
+
+El presente documento electrónico, su integridad y autoría se podrá comprobar en:  http://controlescolar.ieepoplaneacionedu.info o por medio del código QR.
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="564" width="556" height="20" uuid="f39d5000-2b82-41df-8f4e-0a1625d4897e"/>
+				<textElement markup="styled">
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<style isBold='true'>FOLIO</style>  "+$F{folio}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="-12" y="430" width="109" height="102" uuid="0606c8c0-589d-4ec5-b320-fa32c34487fb"/>
+				<imageExpression><![CDATA[com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(new com.google.zxing.qrcode.QRCodeWriter().encode("Alumno:"+$F{nom_tot}+".\nAutoridad educativa: "+$F{firmante}+".\nTipo documento: Certificación.\nCiclo escolar: "+$P{cicescinilib}+"-"+(Integer.parseInt($P{cicescinilib})+1)+".\nConsultar en: http://controlescolar.ieepoplaneacionedu.info", com.google.zxing.BarcodeFormat.QR_CODE, 275, 275))]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="0" y="358" width="90" height="11" uuid="24b25659-3ce0-41b7-b1d0-26ecbec7eefb"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Sello digital SEP:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="369" width="556" height="46" uuid="cde5cf64-049e-481a-a41a-28e25a8f37e6"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sellodigitalsep}+"\n"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="218" width="557" height="27" uuid="cf20785b-74d4-4561-9be9-c0a6bc483d38"/>
+				<textElement textAlignment="Justified">
+					<font fontName="MontserratRegularReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA")|| $F{cct}.trim().contains("20EIS")?
+(
+    "El presente documento de certificación se expide en Santa Lucía del Camino, Oaxaca "+$F{alos}
+):
+    "El presente documento de certificación se expide en "+$F{expedidoen}+" "+$F{alos}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="RetainShape" vAlign="Middle">
+				<reportElement x="0" y="593" width="557" height="28" uuid="5661f2d7-a4b3-417e-b045-a648d1629829"/>
+				<imageExpression><![CDATA["../imgs/BARRA AGUILASvertical.png"]]></imageExpression>
+			</image>
+		</band>
+		<band height="621">
+			<printWhenExpression><![CDATA[$F{cveplan}==3]]></printWhenExpression>
+			<textField>
+				<reportElement x="0" y="564" width="556" height="20" uuid="d1d276c6-42f9-4e7b-ab78-c9f8dc073c02"/>
+				<textElement markup="styled">
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<style isBold='true'>FOLIO</style>  "+$F{folio}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="345" width="102" height="11" uuid="c7346af5-0f7d-4cd1-84d3-37324cff7dd7"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Sello digital SEP:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="266" width="135" height="11" uuid="34d3dab6-c353-412d-af17-d1f82d1bce7c"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Sello digital autoridad educativa:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="245" width="91" height="11" uuid="7f0d98f0-0ee6-4fa3-8fb2-54711f0a75fd"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Autoridad educativa:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="90" y="245" width="444" height="11" uuid="8c596f8d-79d2-4824-98d1-03fa6b9d2996"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firmante} + ", " + $F{cargofirmante}.toUpperCase()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="151" y="256" width="383" height="11" uuid="8d74b1c5-3330-44c2-a041-ada6b6b6c59e"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numcertfirmante}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="556" height="105" uuid="d4a4ff8e-fe40-49d1-b5c0-b87543954a8f"/>
+				<textElement textAlignment="Justified">
+					<font fontName="MontserratRegularReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA") || $F{cct}.trim().contains("20EIS")?
+(
+    "El Departamento de Registro y Certificación Escolar, con Clave de Centro de Trabajo 20ADG0059B, CERTIFICA que "+$F{nom_tot}+($F{curp}.length()==18?", con CURP "+$F{curp}:"")+", concluyó la Educación "+$F{educacion}+" de acuerdo al Plan y Programas de Estudio vigentes, "+
+    "según constancias que obran en el archivo de Control Escolar.\n"
+):(
+    "El Departamento de Registro y Certificación Escolar, CERTIFICA que "+$F{nom_tot}+($F{curp}.length()==18?", con CURP "+$F{curp}:"") + ", concluyó la Educación "+$F{educacion}+" en "+$F{mes_acredi}+ " de " + $F{af} + ", en " +
+    (
+    $F{nombreescuela}.toUpperCase().startsWith("ESCUELA")
+    ?"la "
+    : ($F{nombreescuela}.toUpperCase().startsWith("COLEGIO") || $F{nombreescuela}.toUpperCase().startsWith("INSTITUTO")
+      ?"el "
+      :"la ESCUELA "
+      )
+    )
+    +$F{nombreescuela}+", con Clave de Centro de Trabajo " + $F{cct} + ", según constancias que obran en el archivo de Control Escolar.\n"
+)]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="102" y="428" width="454" height="125" uuid="afc396d9-eb2c-4dbc-9db8-ec2fe1af02e6"/>
+				<textElement textAlignment="Justified">
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Con fundamento en lo dispuesto por el artículo 141 de la Ley General de Educación, los certificados de estudios expedidos por instituciones del Sistema Educativo Nacional, tienen validez en la República Mexicana sin necesidad de trámites adicionales de autenticación o legalización, favoreciendo el tránsito del educando por el Sistema Educativo Nacional.
+
+El presente documento electrónico ha sido firmado mediante el uso de la firma electrónica avanzada por el servidor público competente, amparada por un certificado digital vigente a la fecha de su elaboración, y es válido de conformidad con lo dispuesto en los artículos 1, 8, 9, 11, 12 y 18 de la Ley de Firma Electrónica Avanzada para el Estado de Oaxaca y sus municipios.
+
+El presente documento electrónico, su integridad y autoría se podrá comprobar en:  http://controlescolar.ieepoplaneacionedu.info o por medio del código QR.
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="113" y="332" width="441" height="11" uuid="df4ee045-8ffc-4c6f-b7f8-7e677daef6c5"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechatimbradosep}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="332" width="113" height="11" uuid="29051484-8512-4364-a12e-1754f9067368"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora de timbrado:]]></text>
+			</staticText>
+			<image>
+				<reportElement x="-12" y="430" width="109" height="102" uuid="2661d978-2391-4916-8ae4-81c42d35c817"/>
+				<imageExpression><![CDATA[com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(new com.google.zxing.qrcode.QRCodeWriter().encode("Alumno:"+$F{nom_tot}+".\nAutoridad educativa: "+$F{firmante}+".\nTipo documento: Certificación.\nCiclo escolar: "+$P{cicescinilib}+"-"+(Integer.parseInt($P{cicescinilib})+1)+".\nConsultar en: http://controlescolar.ieepoplaneacionedu.info", com.google.zxing.BarcodeFormat.QR_CODE, 275, 275))]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="358" width="556" height="61" uuid="b0cbe07e-c9ea-424b-b023-605f0dcc8d05"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sellodigitalsep}+"\n"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="256" width="149" height="11" uuid="69dc858b-6414-47dd-865d-f7d28c142b8c"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[No. certificado autoridad educativa: ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="115" width="554" height="27" uuid="26fd8e06-a1ad-4545-a2e8-6077a213085c"/>
+				<textElement textAlignment="Justified">
+					<font fontName="MontserratRegularReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA")|| $F{cct}.trim().contains("20EIS")?
+(
+    "El presente documento de certificación se expide en Santa Lucía del Camino, Oaxaca "+$F{alos}
+):
+    "El presente documento de certificación se expide en "+$F{expedidoen}+" "+$F{alos}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="276" width="554" height="48" uuid="b3f6bb78-7066-4894-843c-318987caf6e8"/>
+				<textElement>
+					<font fontName="MontserratRegularReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sellodigitalieepo}+"\n"]]></textFieldExpression>
+			</textField>
+			<image scaleImage="RetainShape" vAlign="Middle">
+				<reportElement x="-1" y="593" width="557" height="28" uuid="8e35868a-796c-4994-89d4-4ce071256dd8"/>
+				<imageExpression><![CDATA["../imgs/BARRA AGUILASvertical.png"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+</jasperReport>

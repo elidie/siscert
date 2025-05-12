@@ -128,7 +128,9 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
     public boolean Guardar()
     {
         boolean guardado = false, hacerCommit=false; 
-        String datEscu[], fechaExpedicion,fechaAcreditacion, dictamen, promNum_educprim="", promNum_educSec, promLet_educSec="", promNum_educbasic="", promLet_educbasic="";
+        String datEscu[], fechaExpedicion,fechaAcreditacion, dictamen, promNum_educprim=""; 
+        String promNum_educSec, promLet_educSec="", promNum_educbasic="", promLet_educbasic="",estatus_cance="";
+        Map datos = new HashMap();  
         
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
         if (validarEntradas())
@@ -144,20 +146,32 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
                     fechaAcreditacion = global.validarFecha(txtDiaAcreditacion.getText(),""+cbxMesAcreditacion.getSelectedItem(),txtAnioAcreditacion.getText());
                     dictamen = "";//Revision--> txtDictamenNumero.getText().trim().equals("")?"":"DICTAMEN/"+txtDictamenNumero.getText().trim()+"-"+txtDictamenFecha.getText().trim();
                     
-                    if (cbxTipoEducacion.getSelectedItem().equals("Secundaria")){
+                    if (cbxTipoEducacion.getSelectedItem().equals("Secundaria")) {
                         promNum_educSec = getPromedioNum (txtPromedioNum);      promLet_educSec = lblPromedioLetra.getText();
-                    }else {
+                    } else {
                         promNum_educprim = getPromedioNum (txtProm_EducPrim);   promNum_educSec = getPromedioNum (txtProm_EducSec);
                         promNum_educbasic = getPromedioNum (txtPromedioNum);    promLet_educbasic = lblPromedioLetra.getText();
                     }
                     
-                    conexion.guardarAlumnoSec(idAluSICEEB, global.NoControl, casoLlamada, (""+cbxCicloCLD.getSelectedItem()).substring(0,4), txtCiciniCLF.getText(), 
-                            txtCiciniCEE.getText(), rbnSiEsRegularizacion.isSelected(), global, txtNombre.getText(),txtApePaterno.getText(),txtApeMaterno.getText(), 
-                            idsCasocurp.get(cbxCasocurp.getSelectedIndex()),txtCurp.getText(), bkuCurp, false/*Revision--> chkEsCEBAS.isSelected()*/, 
-                            ""/*Revision--> (chkEsCEBAS.isSelected()?""+cbxDiaCEBAS.getSelectedItem():"")*/,txtDiaAcreditacion.getText(),""+cbxMesAcreditacion.getSelectedItem(),txtAnioAcreditacion.getText(),getFechaLetCEBAS (), 
-                            promNum_educprim, promNum_educSec, promLet_educSec, promNum_educbasic, promLet_educbasic,fechaExpedicion,txtLibro.getText(),txtFoja.getText(),txtFolio.getText(),
-                            getFolio(),datEscu[0],datEscu[1],datEscu[2],datEscu[3], datEscu[4],datEscu[5],"",dictamen, global.lugaresValidacion.get(0/*Revision--> cbxLugarValidacion.getSelectedIndex()*/)[0], 
-                            false/*Revision--> chkActualizarVars.isSelected()*/,this.idFormatoCert, ""+cbxTipoNumsolicitud.getSelectedItem(), txtNumSolicitud.getText().trim(),cambioEnCurpONombre,cveUnidad59);
+                    //Verificar si ya tiene asignado un folio sin ningun cambio en sus datos personales                     
+                    datos = conexion.verificarFolioExistente(idAluSICEEB, "2");
+                    estatus_cance = conexion.verificarEnCancelados(idAluSICEEB, "2");
+                    if(datos.get("strFirma").toString().isEmpty() && datos.get("strFolios").toString().isEmpty() &&
+                        (estatus_cance.isEmpty() || 
+                            (!estatus_cance.equals("100") && !estatus_cance.equals("99") && !estatus_cance.equals("1"))))
+                        conexion.guardarAlumnoSec(idAluSICEEB, global.NoControl, casoLlamada, (""+cbxCicloCLD.getSelectedItem()).substring(0,4), txtCiciniCLF.getText(), 
+                                    txtCiciniCEE.getText(), rbnSiEsRegularizacion.isSelected(), global, txtNombre.getText(),txtApePaterno.getText(),txtApeMaterno.getText(), 
+                                    idsCasocurp.get(cbxCasocurp.getSelectedIndex()),txtCurp.getText(), bkuCurp, false/*Revision--> chkEsCEBAS.isSelected()*/, 
+                                    ""/*Revision--> (chkEsCEBAS.isSelected()?""+cbxDiaCEBAS.getSelectedItem():"")*/,txtDiaAcreditacion.getText(),""+cbxMesAcreditacion.getSelectedItem(),txtAnioAcreditacion.getText(),getFechaLetCEBAS (), 
+                                    promNum_educprim, promNum_educSec, promLet_educSec, promNum_educbasic, promLet_educbasic,fechaExpedicion,txtLibro.getText(),txtFoja.getText(),txtFolio.getText(),
+                                    getFolio(),datEscu[0],datEscu[1],datEscu[2],datEscu[3], datEscu[4],datEscu[5],"",dictamen, global.lugaresValidacion.get(0/*Revision--> cbxLugarValidacion.getSelectedIndex()*/)[0], 
+                                    false/*Revision--> chkActualizarVars.isSelected()*/,this.idFormatoCert, ""+cbxTipoNumsolicitud.getSelectedItem(), txtNumSolicitud.getText().trim(),cambioEnCurpONombre,cveUnidad59);
+                    else if(!datos.get("strFirma").toString().isEmpty()) 
+                        throw new Exception ("TIENE_FIRMA"); 
+                    else if(!datos.get("strFolios").toString().isEmpty())
+                        throw new Exception ("TIENE_FOLIOS"); 
+                    else if(estatus_cance.equals("100") || estatus_cance.equals("99") || estatus_cance.equals("1"))
+                        throw new Exception ("PENDIENTE_CANCE");  
                     
                     bkuCurp = txtCurp.getText().trim();                           //Respaldamos el texto del campo curp, por si el usuario cambia la curp en la consulta que hagamos ya no nos afecte
                     cbxTipoNumsolicitud.setSelectedItem("Actual");
@@ -167,14 +181,20 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
                     if (actualizarTblSISCERT && buscarEnSISCERTSelect && this.posSelTblSISCERT!=-1)
                         actualizartblSISCERT ();                                    //Para actualizar la tabla de búsqueda SISCERT
                     guardado = true;
-                    hacerCommit = true;
-                }else
+                    hacerCommit = true; //comentado 07-02-2025
+                } else
                     mensaje.General(this,"CONEXION", "","");
             }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
             catch (Exception ex){ 
                 if (ex.getMessage().contains("ALUMAT_CVEPROGRAMA"))
                     mensaje.Secundaria("ALUMAT_CVEPROGRAMA", "", "");
-                else if (ex.getMessage().contains("ALU_EN_SICCEB")){
+                else if (ex.getMessage().contains("TIENE_FIRMA"))
+                    mensaje.Secundaria("TIENE_FIRMA",datos.get("strFirma").toString(), "");
+                else if (ex.getMessage().contains("TIENE_FOLIOS"))
+                    mensaje.Secundaria("TIENE_FOLIOS",datos.get("strFolios").toString(), "");
+                else if (ex.getMessage().contains("PENDIENTE_CANCE"))
+                    mensaje.Secundaria("PENDIENTE_CANCE","", "");
+                else if (ex.getMessage().contains("ALU_EN_SICCEB")) {
                     if (casoLlamada.equals("Editar") && idAluSICEEB.equals(""))
                         mensaje.ModuloCertificacion(this,"LIGAR_CURP_CON_IDALU", txtCurp.getText(), "");
                     else
@@ -194,7 +214,7 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
                 else if (ex.getMessage().contains("SINIDALU_CRIPFECHANOM"))
                     mensaje.ModuloCertificacion(this,"SINIDALU_CRIPFECHANOM", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
                 else if (ex.getMessage().contains("CURSO_EN_OTRO_CICLO"))
-                    mensaje.ModuloCertificacion(this,"CURSO_EN_OTRO_CICLO", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
+                    mensaje.ModuloCertificacion(this,"CURSO_EN_OTRO_CICLO", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");                                
                 else
                     mensaje.General(this,"GENERAL", ex.getMessage(), ""); 
             }
@@ -203,7 +223,7 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
         this.setCursor(Cursor.getDefaultCursor());                              //Cambiamos la forma del puntero a default        
         return guardado;  //La operación se completó con éxito
     }
-    
+        
     //-------- Carga datos de la base de datos al formulario para editarlos
     public final void Editar () throws Exception
     {
@@ -215,7 +235,7 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
         try {
             conexion.conectar();
-            rs = conexion.selecAnvRevParaEditar (global.NoControl, global.curp, global.cveplan, global.cveunidad);
+            rs = conexion.selecAnvRevParaEditar (global.NoControl, global.curp, global.cveplan, global.cveunidad, global.verUnidades);
             rs.next();
                     //************** Cargamos los datos del alumno **************
             bkuDelegacion = rs.getString("delegacion").trim();

@@ -124,7 +124,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
         }
     }
                 //----------- Hace consulta buscando que contenga caracteres en la curp segÃºn una cadena dada
-    public void selecAlumnoSISCERTFiltro (SISCERT_ModeloDeTabla modelSISCERT, String filtro,String caso, String cveUnidad, int cveplan, String idformato) throws SQLException, Exception
+    public void selecAlumnoSISCERTFiltro (SISCERT_ModeloDeTabla modelSISCERT, String filtro,String caso, String cveUnidad, int cveplan, String idformato, boolean cambiarUnidad) throws SQLException, Exception
     {
         String atributoABuscar="", filtroUnidad="", cicescinilib, orderBy="c.idformato, c.cicescinilib, c.numsolicitud";
         String[] part, part2;
@@ -154,9 +154,15 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
         rs=stm.executeQuery("SELECT  idcertificacion, idcertiregion, NVL(numsolicitud,'') AS numsol, foja, NVL(cicescinilib,'') AS cicescinilib, c.idalu, nombre, "
                                 + "NVL(apepat,'') AS apepat, NVL(apemat,'') AS apemat, curp, c.idformato, c.cicinilib_cert, f.descripcion, f.formato, "
                                 + "CASE WHEN c.numsolicitud<0 THEN '' ELSE cast(c.numsolicitud as varchar(10)) END AS numsolicitud, c.cicescinilib, "
-                                + "c.numsolicitud "
+                                + "c.numsolicitud, "
+                                + "NVL((SELECT fi.folionum FROM siscert_folimpre fi, siscert_firmaelec fe " 
+                                    + " WHERE fi.cicescinilib = fe.cicescinilib AND fi.idfolimpre = fe.idfolimpre AND fi.idalu=fe.idalu " 
+                                    + " AND fi.idalu=c.idalu AND fi.idcertificacion = c.idcertificacion AND fi.cveplan=c.cveplan "
+                                    + " AND fi.numsolicitud = c.numsolicitud AND foliodigital is not null),'') AS folio "
                             + "FROM siscert_certificacion c, siscert_impformato f "
-                            + "WHERE f.idformato=c.idformato AND "+atributoABuscar+" "+filtroUnidad+" AND cveplan = "+cveplan + " "
+                            + "WHERE f.idformato=c.idformato AND "+atributoABuscar + " " 
+                            + (cambiarUnidad ? " " : filtroUnidad)
+                            + " AND cveplan = "+cveplan + " "
                             + "ORDER BY "+orderBy);
         while (rs.next()){
             fila = new Object[numColumnas];
@@ -176,12 +182,28 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             fila[9]=rs.getString("curp");
             fila[10]=rs.getInt("idformato")>=8?(rs.getInt("cicinilib_cert")==2012?"EDUCACIÓN BÁSICA":"NIVEL EDUCATIVO"):rs.getString("descripcion");
             fila[11]=rs.getString("formato");
+            fila[12]=rs.getString("folio");
             modelSISCERT.addRow(fila, filaOculta);
         }
     }
+    public String buscarEnSICEERT(String curp, String cveplan, String idAluSICEEB, boolean verUnidades) throws SQLException
+    {
+        String mensaje="";        
+            
+        String idcertiregion;
+        rs = stm.executeQuery("SELECT idcertificacion, idcertiregion, cveunidad FROM siscert_certificacion "
+                + " WHERE curp='"+curp.toUpperCase()+"' AND cveplan="+cveplan 
+                + " AND idalu = "+idAluSICEEB );
+        while (rs.next()) {
+            idcertiregion = rs.getString("idcertiregion");            
+            mensaje = (verUnidades ? "N.Ctrl: "+idcertiregion+", Unidad: "+rs.getString("cveunidad") : 
+                    "N.Ctrl: "+idcertiregion+", curp: " + curp + "\n");
+        }
+        return mensaje;            
+    }
     
                 //----------- Hace consulta buscando que contenga caracteres en la curp segÃºn una cadena dada
-    public ResultSet selecDuplicadosImpresosFiltro (SISCERT_ModeloDeTabla modelSISCERT, String filtro,String caso, String cveUnidad, int cveplan) throws SQLException, Exception
+    public ResultSet selecDuplicadosImpresosFiltro (SISCERT_ModeloDeTabla modelSISCERT, String filtro,String caso, String cveUnidad, int cveplan, String capturista, boolean verUnidades) throws SQLException, Exception
     {
         String atributoABuscar="", filtroUnidad;
         String[] part, part2;
@@ -201,17 +223,23 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             atributoABuscar = "numsolicitud BETWEEN "+part[0]+" AND "+part2[0]+" AND cicescinilib="+part2[1];
         }
 
-        if (cveUnidad.equals("DSRVAL"))                                      //Damos permisos para que Ãºnicamente VALLES CENTRALES tenga acceso a todas las regiones 
-            filtroUnidad = " AND (cveunidad ='"+cveUnidad+"' OR cveunidad = 'CINCO9') ";
-        else
+        if (cveUnidad.equals("DSRVAL")) {                                     //Damos permisos para que Ãºnicamente VALLES CENTRALES tenga acceso a todas las regiones 
+            if(verUnidades)
+                filtroUnidad = "";
+            else
+                filtroUnidad = " AND (cveunidad ='"+cveUnidad+"' OR cveunidad = 'CINCO9') ";
+        } else
             filtroUnidad = " AND cveunidad ='"+cveUnidad+"' ";
 
-        rs=stm.executeQuery("SELECT  idfolimpre, idalu, numsolicitud, cicescinilib, foliolet, folionum, " +
-                            "nombre, primerape, segundoape, curp, cicescini, cicescfin, prom_educprim, promedio, " +
-                            "prom_educbasic, libro, foja, folio, escuela, cct, fecha, estatus_impre, fechainsert, idformato " +
-                            "FROM siscert_folimpre " +
+        rs=stm.executeQuery("SELECT  fi.idfolimpre, fi.idalu, fi.numsolicitud, fi.cicescinilib, fi.foliolet, fi.folionum, " +
+                            "fi.nombre, fi.primerape, fi.segundoape, fi.curp, fi.cicescini, fi.cicescfin, fi.prom_educprim, fi.promedio, " +
+                            "fi.prom_educbasic, fi.libro, fi.foja, fi.folio, fi.escuela, fi.cct, fi.fecha, fi.estatus_impre, fi.fechainsert, " +
+                            "fi.usuario, fe.fechatimbradoieepo, fe.foliodigital " +
+                            "FROM siscert_folimpre fi INNER JOIN siscert_firmaelec fe " +
+                                "ON (fi.idalu = fe.idalu AND fi.idfolimpre = fe.idfolimpre AND fi.folionum = fe.folionum AND fi.cicescinilib = fe.cicescinilib) " +
                             "WHERE "+atributoABuscar+" "+filtroUnidad+" AND cveplan = "+cveplan + " " +
-                            "ORDER BY idformato, cicescini, numsolicitud");
+                            "AND estatus_firma=100 AND foliodigital is not null " +        
+                            "ORDER BY fi.idformato, fi.cicescini, fi.numsolicitud");
         while (rs.next()){
             fila = new Object[numColumnas];
             for (int i=1; i<=numColumnas; i++)
@@ -296,7 +324,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                 if (apematNombres[1].contains("#")){
                     if (apematNombres[1].indexOf("#") == apematNombres[1].length()-1)
                         throw new Exception ("FALTACURP_BUSQNOM");
-                    else{
+                    else {
                         nombresCurp = apematNombres[1].trim().split("#");
                         if (!nombresCurp[0].equals(""))
                             atributoABuscar += (!atributoABuscar.equals("")?" AND":"") + " nombre LIKE \""+nombresCurp[0].toUpperCase()+"%\" "; 
@@ -322,11 +350,66 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
         else
             stm.execute("DELETE FROM siscert_certificacion WHERE cveunidad='"+cveunidad+"' AND cveplan="+cveplan+" AND idcertiregion = '"+noControl+"'");
     }
-
-                //------------- Consulta para seleccionar los datos necesarios del alumno para cargarlos al formulario y editarlos
-    public ResultSet selecAnvRevParaEditar (String noControl, String curp, int cveplan, String cveunidad) throws SQLException
+    
+    public boolean cancelarFolio ( String idfolimpre, String idalu, String cicescinilib, int cveplan, String usuario) throws SQLException, Exception
     {
-        String atributos="";
+        boolean resultado = false;
+        
+        rs = stm.executeQuery(" SELECT count(fe.idalu) AS total"
+                            + " FROM siscert_folimpre fi, siscert_firmaelec fe "
+                            + " WHERE fi.idfolimpre=fe.idfolimpre AND fi.idalu=fe.idalu AND fi.cicescinilib = fe.cicescinilib "
+                            + " AND fi.cveplan="+cveplan+" AND fe.idalu="+idalu+" AND fe.cicescinilib="+cicescinilib 
+                            + " AND fe.idfolimpre = "+idfolimpre+" AND fe.foliodigital is not null AND estatus_firma=100 ");
+        if(rs.next()) {
+            try {
+                    stm.execute("INSERT INTO siscert_firmaelec_cance(idfolimpre,idalu,cicescinilib,folionum,idfirmante,cadenaoriginal,fechatimbradoieepo,sellodigitalieepo,"
+                            + "fechatimbradosep,sellodigitalsep,estatus,usuario,fechainsert,cicescini,textoenxml,xfoliodigital,sellodec,carpeta,folionum_cersep,"
+                            + "estatus_firma,foliodigital,usuario_cance,fecha_cance,hora_cance) "
+                        + "SELECT idfolimpre,idalu,cicescinilib,folionum,idfirmante,cadenaoriginal,fechatimbradoieepo,sellodigitalieepo,"
+                            + "fechatimbradosep,sellodigitalsep,estatus,usuario,fechainsert,cicescini,textoenxml,xfoliodigital,sellodec,carpeta,"
+                            + "folionum_cersep,estatus_firma,foliodigital,'"+usuario+"',date(current), extend(current, hour to minute) "
+                        + " FROM siscert_firmaelec "
+                        + " WHERE idalu="+idalu+" AND cicescinilib="+cicescinilib 
+                        + " AND idfolimpre = "+idfolimpre+" "
+                        + " AND foliodigital is not null AND estatus_firma=100" ); 
+                    
+                    stm.execute("DELETE FROM siscert_firmaelec "
+                            + " WHERE idalu="+idalu+" AND cicescinilib="+cicescinilib 
+                            + " AND idfolimpre = "+idfolimpre+" "
+                            + " AND foliodigital is not null AND estatus_firma=100" ); 
+                    
+                    stm.execute("INSERT INTO siscert_folimpre_cance (idfolimpre,idcertificacion,idalu,idfolim_var,foliolet,folionum,cveunidad,"
+                        + "cveplan,numsolicitud,cicescinilib,cebas,nombre,"
+                        + " primerape,segundoape,idcasocurp,curp,cicescini,cicescfin,prom_educprim,promedio,prom_letra,prom_educbasic,promlet_educbasic," 
+                        + " promlet_primsec_edubas,dia_acredi,dia_exped_let,mes_acredi,fecha_acredi_let,curso_acredito,mesanio_exped_let,fecha_exped_let,"
+                        + " libro,foja,folio,escuela,cct,fecha,juridico,modalidad,plan_estud,idleyenda_lugvalid,rodac,estatus_impre,idformato,usukgenero," 
+                        + " feckgenero,usuario,fechainsert,hora,usuario_cance,fecha_cance,hora_cance)"
+                    + " SELECT idfolimpre,idcertificacion,idalu,idfolim_var,foliolet,folionum,cveunidad,"
+                        + "cveplan,numsolicitud,cicescinilib,cebas,nombre,"
+                        + " primerape,segundoape,idcasocurp,curp,cicescini,cicescfin,prom_educprim,promedio,prom_letra,prom_educbasic,promlet_educbasic," 
+                        + " promlet_primsec_edubas,dia_acredi,dia_exped_let,mes_acredi,fecha_acredi_let,curso_acredito,mesanio_exped_let,fecha_exped_let,"
+                        + " libro,foja,folio,escuela,cct,fecha,juridico,modalidad,plan_estud,idleyenda_lugvalid,rodac,estatus_impre,idformato,usukgenero," 
+                        + " feckgenero,usuario,fechainsert,hora,'"+usuario+"',date(current), extend(current, hour to minute) "
+                    + " FROM siscert_folimpre "
+                    + " WHERE cveplan="+cveplan+" AND idalu="+idalu+" AND cicescinilib="+cicescinilib 
+                    + " AND idfolimpre = "+idfolimpre+" " );  
+                    
+                    stm.execute("DELETE FROM siscert_folimpre "
+                            + " WHERE cveplan="+cveplan+" AND idalu="+idalu+" AND cicescinilib="+cicescinilib 
+                            + " AND idfolimpre = "+idfolimpre+" "); 
+                    
+                    
+                    resultado=true;
+            } catch(SQLException ex){
+                throw new Exception("Error en el proceso de cancelación: "+ex.getMessage());
+            }
+        }
+        return resultado;
+    }
+                //------------- Consulta para seleccionar los datos necesarios del alumno para cargarlos al formulario y editarlos
+    public ResultSet selecAnvRevParaEditar (String noControl, String curp, int cveplan, String cveunidad, boolean verUnidades) throws SQLException
+    {
+        String atributos="", query="";
         switch (cveplan)
         {
             case 1: atributos = "fiv.delegacion, fiv.cctdeleg, nombre,apepat,apemat,idcasocurp,curp,cebas,dia_acredi,LOWER(mes_acredi) AS mes_acredi,idformato,ai,af,promedio,prom_letra,fiv.lugar_expedicion,NVL(idalu,'') AS idalu,idcertiregion,fiv.delegado,fiv.cargodelegado,NVL(numsolicitud,'') AS numsolicitud, cicescinilib, libro,foja,idformatosfolio, folio,idcct,NVL(tablaescuela,'') AS tablaescuela,escuela AS hescuela,NVL(idhescuela,'') AS idhescuela,escuela,cct,fiv.cotejo,juridico,fecha, idleyenda_lugvalid, c.cveunidad ";
@@ -339,9 +422,13 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
         
         rs = stm.executeQuery("SELECT "+atributos+" FROM siscert_certificacion c, siscert_folimpre_vars fiv WHERE c.idfolim_var=fiv.idfolim_var AND idcertiregion = '" + noControl + "' AND curp = '"+curp+"' AND c.cveunidad ='"+cveunidad+"' and cveplan = '"+cveplan+"'");        
         
-        if(!rs.next() && cveunidad.equals("DSRVAL"))
-            rs = stm.executeQuery("SELECT "+atributos+" FROM siscert_certificacion c, siscert_folimpre_vars fiv WHERE c.idfolim_var=fiv.idfolim_var AND idcertiregion = '" + noControl + "' AND curp = '"+curp+"' AND c.cveunidad ='CINCO9' and cveplan = '"+cveplan+"'");        
-        
+        if(!rs.next()){
+            if(verUnidades)
+                query = "SELECT "+atributos+" FROM siscert_certificacion c, siscert_folimpre_vars fiv WHERE c.idfolim_var=fiv.idfolim_var AND idcertiregion = '" + noControl + "' AND curp = '"+curp+"' AND cveplan = '"+cveplan+"'";
+            else if(cveunidad.equals("DSRVAL"))    
+                query = "SELECT "+atributos+" FROM siscert_certificacion c, siscert_folimpre_vars fiv WHERE c.idfolim_var=fiv.idfolim_var AND idcertiregion = '" + noControl + "' AND curp = '"+curp+"' AND c.cveunidad ='CINCO9' and cveplan = '"+cveplan+"'";            
+            rs = stm.executeQuery(query);                        
+        }            
         return rs;        
     }
     
@@ -447,13 +534,20 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
     {
         rs = stm.executeQuery("SELECT idcasocurp, casocurp FROM siscert_casocurp");
         while (rs.next())
-        {
-            
+        {            
             idsCasoCurp.add( rs.getInt("idcasocurp") );
             casosCurp.addItem( rs.getString("casocurp") );
         }
     }
 
+    public void verificarFolioExistente () throws SQLException
+    {
+        rs = stm.executeQuery("SELECT * FROM siscert_certificacion WHERE ");
+        while (rs.next())
+        {                        
+        }
+    }
+    
     //metodo obsoleto
     public void guardarAlumnoPree (String idAluSICEEB,String NoControl, String casoConsulta, String cicescinilib, SISCERT_GlobalMethods global, String nombre,String apepat,String apemat, int idcasocurp, String curp, String respaldoCurp,
             String cicloInicial, String cicloFinal, String fecha,
@@ -984,7 +1078,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         + "'"+curpRaiz.toUpperCase()+"', \""+nombre.trim().toUpperCase()+"\", \""+primerApe.trim().toUpperCase()+"\", \""+segundoApe.trim().toUpperCase()+"\","
                         +" TO_DATE('"+fechaNacimiento+"','%Y/%m/%d'),  "
                         + "'"+sexo.toUpperCase()+"','','---',"+cveEntNac+","+ fechaNacimiento.substring(0, 4)+", null, null, null, "
-                        + "0,'FA', null,date(current), '"+curpRaiz.substring(0,16).toUpperCase()+"', '' , '', 'I',null,'','', 0, '"+usuario.toUpperCase()+"', date(current), extend(current, hour to minute),null)");
+                        + "0,'FA', null,date(current), '"+curpRaiz.substring(0,16).toUpperCase()+"', '' , '', 'I',null,'','', 0, '"+usuario.toUpperCase()+"', date(current), extend(current, hour to minute),null,'000')");
             }catch (SQLException ex){ 
                 //Unique constraint (a211qi14.pk_alumno)
                 if (ex.getMessage().toUpperCase().contains("UNIQUE")){
@@ -1015,7 +1109,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         stm.execute("INSERT INTO cicloescolar (cicescini, cicescfin, descicesc, fecini, fecfin, estatus) VALUES ("+cicescini+" ,"+(cicescini+1)+", '"+cicescini+" - "+(cicescini+1)+"', TO_DATE('"+cicescini+"/09/01','%Y/%m/%d'),TO_DATE('"+(cicescini+1)+"/06/30','%Y/%m/%d'),'I')");
                     stm.execute("INSERT INTO alumnogrado values ("+ idalu+", "+cicescini+" ,"+(cicescini+1)+" ,"+ grado+", 0, 0, 0, "               //   /---El 1 en peso, será un distintivo para indicar que el ingreso fue por SiCEEB web
                             + "'"+cveturno+"', "+idcct+", 'INS','C',"+cveplan+",'"+cveprograma.toUpperCase()+"','A', "+ "'SIN REGISTRAR', '00000', NULL, NULL, 1, 0.00, 0, "
-                                + "0.0,0.0,"+calif+", null,'P','NA','N', 1,'E', 0, 0, 0, NULL, NULL, NULL, '', '"+usuario.toUpperCase()+"', date(current), extend(current, hour to minute))" );
+                                + "0.0,0.0,"+calif+", null,'P','NA','N', 1,'E', 0, 0, 0, NULL, NULL, NULL, '', '"+usuario.toUpperCase()+"', date(current), extend(current, hour to minute),date(current))" );
                 } else {                                                      //Si ya está registrado
                     //Verificamos si ya tiene registrado un certificado impreso
                     rs = stm.executeQuery("SELECT foliolet, folionum FROM folios_impre WHERE idalu="+idalu+" AND grado="+grado+" AND cveplan="+cveplan);
@@ -1419,7 +1513,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     default: break;
                 }
             }
-        }else
+        } else
             querySET=((tipoVersion==1)?"fullversion":"lightversion")+"='"+sisver+"',";
         
         if (registrarVersion)
@@ -1841,7 +1935,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                             throw new Exception ("FOLIO_CANCELADO*"+folio);
                         else if (estatusImpre.equals("I"))
                             throw new Exception ("FOLIO_REPETIDO*"+folio);
-                    }else
+                    } else
                         throw new Exception ("SIN_LADO_ANVERSO*"+folio);
                 }
             }
@@ -2739,5 +2833,58 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             }
         }finally {  this.closeStatement(stm2, null);  }
     }
-   
+
+    public Map verificarFolioExistente(String idAluSICEEB, String cveplan) throws SQLException {
+      String strFirma = "";
+      String strFolios = "";
+      Map datos = new HashMap();       
+      
+        if(!idAluSICEEB.isEmpty()) {
+            rs = stm.executeQuery("SELECT fo.cicescinilib,fo.numsolicitud, fo.folionum, fo.juridico, " 
+                + "NVL((SELECT foliodigital FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre),'') as foliodigital, " 
+                + "(SELECT fechatimbradosep FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre) as fecha_timbrado, " 
+                + "(SELECT estatus_firma FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre) as estatus_firma " 
+                + "FROM siscert_certificacion c, siscert_folimpre fo " 
+                + "WHERE c.idalu = fo.idalu " 
+                + "AND c.idcertificacion = fo.idcertificacion " 
+                + "AND c.idalu = " + idAluSICEEB +" "
+                + "AND c.cveplan=" + cveplan    
+            );
+
+            while (rs.next()) {            
+                if(!rs.getString("foliodigital").isEmpty())
+                    strFirma += "\nCicescinilib: " + rs.getString("cicescinilib")
+                        + ",\nNúm. solicitud: " + rs.getString("numsolicitud")
+                        + ",\nFolio digital: " + rs.getString("foliodigital") 
+                        + ",\nFecha timbrado: " + rs.getString("fecha_timbrado") + "\n";
+                else
+                    strFolios += "\nCicescinilib: " + rs.getString("cicescinilib")
+                        + ",\nNúm. Solicitud: " + rs.getString("numsolicitud") + "\n";                        
+            }
+        }
+        
+        datos.put("strFirma", strFirma);
+        datos.put("strFolios", strFolios);
+        
+        return datos;
+    }   
+    
+    public String verificarEnCancelados(String idAluSICEEB, String cveplan) throws SQLException {
+        String cance = "";
+        
+        rs = stm.executeQuery("SELECT estatus_firma " 
+            + "FROM siscert_certificacion c, siscert_folimpre_cance fo, siscert_firmaelec_cance fc " 
+            + "WHERE c.idalu = fo.idalu " 
+            + "AND c.idcertificacion = fo.idcertificacion " 
+            + "AND c.idalu = " + (idAluSICEEB.isEmpty() ? "0" :idAluSICEEB)  +" "
+            + "AND c.cveplan = " + cveplan +" "    
+            + "AND fo.idfolimpre = fc.idfolimpre "    
+            + "AND fo.idalu = fc.idalu "    
+            + "AND fo.cicescinilib = fc.cicescinilib "     
+        );
+        
+        if(rs.next())
+            cance = rs.getString("estatus_firma");
+        return cance;
+    }
 }

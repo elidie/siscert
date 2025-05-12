@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="certificacionSemielectronico_2017" language="groovy" pageWidth="612" pageHeight="792" columnWidth="556" leftMargin="28" rightMargin="28" topMargin="28" bottomMargin="28" uuid="2a5f1cd7-78af-451d-85f9-6beae5079901">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="240"/>
+	<parameter name="cicescinilib" class="java.lang.String"/>
+	<parameter name="idalu" class="java.lang.String"/>
+	<parameter name="idfolimpre" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select sc.cveplan,
+  (CASE sc.cveplan WHEN 2 THEN 'SECUNDARIA' WHEN 1 THEN 'PRIMARIA' END) AS nivelEduc,
+  (TRIM(sc.nombre)||' '||TRIM(sc.apepat)||' '||TRIM(sc.apemat)) AS nom_tot,
+  TRIM(sc.curp) AS curp,
+  (CASE sc.cveplan WHEN 2 THEN 'Secundaria' WHEN 1 THEN 'Primaria' END) AS educacion,
+  TRIM(sc.escuela) AS nombreEscuela,
+  TRIM(sc.cct) AS cct, sc.usuario,
+  sc.cicescinilib,sc.cicinilib_cert,sc.ciciniestud,sc.cveunidad,
+  sc.fechainsert,sc.dia_acredi,
+  lower(sc.mes_acredi) as mes_acredi,sc.af,sc.libro,sc.foja,sc.prom_letra,
+  (case when sc.promedio='A' then CAST('99.9' as real) else CAST(sc.promedio as real) end) AS promedio,
+  sc.promedio as promedio_str,
+  (case when sc.prom_educprim='A' then CAST('99.9' as real) else CAST(sc.prom_educprim as real) end) AS prom_educprim,
+  sc.prom_educprim as prom_educprim_str,
+  (case when sc.prom_educbasic='A' then CAST('99.9' as real) else CAST(sc.prom_educbasic as real) end) AS prom_educbasic,
+  sc.prom_educbasic as prom_educbasic_str,
+  sc.promlet_educbasic,
+  lower(sfi.fecha_exped_let) as alos,
+  (SELECT TRIM(desmunicipio_tipotit) FROM
+	municipio where cvemunicipio=390 AND cveentidad=20)||', '||'Oaxaca' AS expedidoEn,
+  ff.firmante,
+  ff.cargofirmante,
+  ff.numcertfirmante,
+  sfe.sellodigitalieepo,
+  TO_CHAR (sfe.fechatimbradoieepo, '%Y-%m-%d %H:%M:%S') AS fechatimbradosep,
+  sfe.sellodigitalieepo AS selloDigitalIEEPO,
+  sfe.sellodigitalsep AS selloDigitalSEP,
+  sfe.foliodigital AS folio
+from siscert_certificacion sc, siscert_folimpre sfi, siscert_firmaelec sfe, firma_firmante ff
+where sc.idcertificacion = sfi.idcertificacion AND
+sc.idalu = sfi.idalu AND
+sfi.idfolimpre=sfe.idfolimpre
+AND sfe.idfirmante=ff.idfirmante
+AND sfi.cicescinilib = $P{cicescinilib}
+AND sfe.cicescinilib = $P{cicescinilib}
+AND sc.juridico = 'VERIFICADO'
+AND sc.idalu = $P{idalu}
+AND sfi.idfolimpre = $P{idfolimpre}
+AND sfe.estatus_firma = 100
+ORDER BY sc.cveunidad,usuario ASC]]>
+	</queryString>
+	<field name="niveleduc" class="java.lang.String"/>
+	<field name="nom_tot" class="java.lang.String"/>
+	<field name="curp" class="java.lang.String"/>
+	<field name="educacion" class="java.lang.String"/>
+	<field name="nombreescuela" class="java.lang.String"/>
+	<field name="cct" class="java.lang.String"/>
+	<field name="cicescinilib" class="java.lang.Integer"/>
+	<field name="cveplan" class="java.lang.Integer"/>
+	<field name="cicinilib_cert" class="java.lang.Short"/>
+	<field name="ciciniestud" class="java.lang.Short"/>
+	<field name="cveunidad" class="java.lang.String"/>
+	<field name="fechainsert" class="java.sql.Date"/>
+	<field name="dia_acredi" class="java.lang.String"/>
+	<field name="mes_acredi" class="java.lang.String"/>
+	<field name="af" class="java.lang.Short"/>
+	<field name="promedio" class="java.math.BigDecimal"/>
+	<field name="promedio_str" class="java.lang.String"/>
+	<field name="prom_letra" class="java.lang.String"/>
+	<field name="prom_educprim" class="java.math.BigDecimal"/>
+	<field name="prom_educprim_str" class="java.lang.String"/>
+	<field name="prom_educbasic" class="java.math.BigDecimal"/>
+	<field name="prom_educbasic_str" class="java.lang.String"/>
+	<field name="promlet_educbasic" class="java.lang.String"/>
+	<field name="alos" class="java.lang.String"/>
+	<field name="expedidoen" class="java.lang.String"/>
+	<field name="firmante" class="java.lang.String"/>
+	<field name="cargofirmante" class="java.lang.String"/>
+	<field name="numcertfirmante" class="java.lang.String"/>
+	<field name="sellodigitalieepo" class="java.lang.String"/>
+	<field name="fechatimbradosep" class="java.lang.String"/>
+	<field name="sellodigitalsep" class="java.lang.String"/>
+	<field name="folio" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="131" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="121" height="37" uuid="2dcf14b0-4d86-400b-bc93-043b2039dc65"/>
+				<imageExpression><![CDATA["../imgs/logoSEP_color.jpg"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="476" y="7" width="80" height="22" uuid="0432c6dc-cd46-458e-a5f3-3bb87770f2ff"/>
+				<imageExpression><![CDATA["../imgs/Isologo y escudo - Gobierno del Estado.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="81" width="556" height="14" uuid="8db52ceb-c344-4793-a0f8-55ea5da080ac"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="SoberanaTitularReport" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CERTIFICACIÓN DE EDUCACIÓN "+$F{niveleduc}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="50" width="556" height="18" uuid="c08e0aa0-84af-48d1-9d07-26ba04262016"/>
+				<textElement textAlignment="Center">
+					<font fontName="SoberanaTitularReport" size="14"/>
+				</textElement>
+				<text><![CDATA[SISTEMA EDUCATIVO NACIONAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="68" width="556" height="13" uuid="254fb8c0-5cff-4733-9175-26064ddb50c7"/>
+				<textElement textAlignment="Center">
+					<font fontName="SoberanaTitularReport" size="8"/>
+				</textElement>
+				<text><![CDATA[INSTITUTO ESTATAL DE EDUCACIÓN PÚBLICA DE OAXACA]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="605" splitType="Stretch">
+			<image>
+				<reportElement x="120" y="50" width="311" height="311" uuid="49b7d4fc-d188-4f17-9e4b-f573a473a375"/>
+				<imageExpression><![CDATA["../imgs/escudoNacional.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="0" width="556" height="85" uuid="4576c6ce-86e6-4506-8059-b39fab8dc906"/>
+				<textElement textAlignment="Justified">
+					<font fontName="SoberanaSansReport" size="9"/>
+					<paragraph lineSpacing="1_1_2" lineSpacingSize="1.5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA")?
+(
+    "El Departamento de Registro y Certificación Escolar, con Clave de Centro de Trabajo 20ADG0059B, CERTIFICA que "+$F{nom_tot}+($F{curp}.length()==18?", con CURP "+$F{curp}:"")+", cursó y acreditó la Educación "+$F{educacion}+" de acuerdo al Plan de Estudios vigente, "+
+    "con el promedio final que se indica, según constancias que obran en el archivo de Control Escolar.\n"
+):(
+    "El Departamento de Registro y Certificación Escolar, CERTIFICA que "+$F{nom_tot}+($F{curp}.length()==18?", con CURP "+$F{curp}:"")+", cursó y acreditó la Educación "+($F{af}==2013 && $F{cveplan}==2 && $F{promlet_educbasic}.length()>0 ? "Básica":$F{educacion})+" en "+$F{mes_acredi}+ " de " + $F{af} + ", en " +
+    (
+    $F{nombreescuela}.toUpperCase().startsWith("ESCUELA")
+    ?"la "
+    : ($F{nombreescuela}.toUpperCase().startsWith("COLEGIO") || $F{nombreescuela}.toUpperCase().startsWith("INSTITUTO")
+      ?"el "
+      :"la ESCUELA "
+      )
+    )
+    +$F{nombreescuela}+", con Clave de Centro de Trabajo "+$F{cct}+", con el promedio final que se indica, según constancias que obran en el archivo de Control Escolar.\n"
+    +($F{cveplan}==2 && $F{af}==2013 && $F{promlet_educbasic}.length()>0  ? "Promedio de Educación Primaria ("+$F{prom_educprim_str}+")/ Promedio de Educación Secundaria ("+$F{promedio_str}+")\n":"")
+)]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="111" y="112" width="96" height="20" uuid="548f6ca3-9f91-4309-be46-f3982acdf803"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="SoberanaSansReport" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PROMEDIO FINAL :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="281" y="112" width="177" height="20" uuid="1232f31a-f27e-4abd-abd4-0138bc06a8e1"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SoberanaSansReport" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA")?
+(
+    ""
+):
+( ($F{af}==2013 && $F{cveplan}==2  && $F{promlet_educbasic}.length()>0) ?
+    (
+        $F{prom_educbasic} >= 6.0 && $F{prom_educbasic} <= 10.0 ?
+            $F{promlet_educbasic} : "ACREDITADO"
+    ):
+    (
+        $F{promedio} >= 6.0 && $F{promedio} <= 10.0 ? $F{prom_letra} : "ACREDITADO"
+    )
+)]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="225" width="556" height="29" uuid="c48c6cbb-82bd-4d2b-9dbc-f1e234a24c65"/>
+				<textElement textAlignment="Justified">
+					<font fontName="SoberanaSansReport" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA")?
+(
+    "El presente documento de certificación se expide en Santa Lucía del Camino, Oaxaca "+$F{alos}
+):
+    "El presente documento de certificación se expide en "+$F{expedidoen}+" "+$F{alos}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="2" y="260" width="552" height="10" uuid="ef560b5d-86c3-4d5a-b6a5-4b9ccf69d8ea"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Autoridad educativa: "+$F{firmante} + ", " + $F{cargofirmante}.toUpperCase()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="2" y="271" width="451" height="10" uuid="34655bd3-fbfd-43bc-ad08-baa2402bfa2f"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["No. certificado autoridad educativa: "+$F{numcertfirmante}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="281" width="131" height="10" uuid="c98096db-d9f4-4d57-83ad-102cc91243b9"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Sello digital autoridad educativa:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="291" width="553" height="40" uuid="6c91b259-a862-4bcc-ac10-b68da84cb9f9"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sellodigitalieepo}+"\n"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="339" width="105" height="10" uuid="8da403b1-8d85-4530-b330-abec7655ab0f"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha y hora de timbrado:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="108" y="339" width="346" height="10" uuid="e6bd5b3f-5396-4123-bddc-c4d583a74ac1"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fechatimbradosep}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="121" y="419" width="434" height="139" uuid="27ed2e20-048e-4264-9dd8-1c332dcf4d09"/>
+				<textElement textAlignment="Justified">
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Con fundamento en lo dispuesto por el artículo 60 de la Ley General de Educación, los certificados de estudios expedidos por instituciones del Sistema Educativo Nacional, tienen validez en la República Mexicana sin necesidad de trámites adicionales de autenticación o legalización, favoreciendo el tránsito del educando por el Sistema Educativo Nacional.
+
+La presente certificación de estudios ha sido firmada mediante el uso de la firma electrónica avanzada, amparada por un certificado vigente a la fecha de su emisión y es válido de conformidad con lo dispuesto en los artículos 1, 8, 9, 11, 12 y 18 de la Ley de Firma Electrónica Avanzada para el Estado de Oaxaca y sus municipios.
+
+La versión electrónica del presente documento, su integridad y autoría se podrá comprobar a través de la página electrónica de la Dirección de Planeación Educativa del Instituto Estatal de Educación Pública de Oaxaca por medio de la siguiente liga: http://controlescolar.ieepoplaneacionedu.info. De igual manera, podrá verificar el documento electrónico por medio del código QR.
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="558" width="556" height="20" uuid="06d5fb0b-df4d-4a1f-824c-9b5c2707477b"/>
+				<textElement markup="styled">
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<style isBold='true'>FOLIO</style>  "+$F{folio}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="2" y="408" width="109" height="102" uuid="873ac214-9fc2-409b-a475-331065bd4345"/>
+				<imageExpression><![CDATA[com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage(new com.google.zxing.qrcode.QRCodeWriter().encode("Alumno:"+$F{nom_tot}+".\nAutoridad educativa: "+$F{firmante}+".\nTipo documento: Certificación.\nCiclo escolar: "+$P{cicescinilib}+"-"+(Integer.parseInt($P{cicescinilib})+1)+".\nConsultar en: http://controlescolar.ieepoplaneacionedu.info", com.google.zxing.BarcodeFormat.QR_CODE, 275, 275))]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="2" y="351" width="62" height="11" uuid="1226d76c-bdd5-419c-b897-1198d89635d1"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<text><![CDATA[Sello digital SEP:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="362" width="553" height="40" uuid="866f9435-5f69-48c6-a5e5-ccc50915f83c"/>
+				<textElement>
+					<font fontName="SoberanaSansReport" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sellodigitalsep}+"\n"]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement mode="Transparent" x="4" y="71" width="64" height="79" forecolor="#FFFFFF" uuid="314f3796-d791-4109-9bdc-4809ad8faa34"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="58" y="71" width="10" height="10" uuid="378cf3f8-ff2c-45f8-8574-e9d67a3c3e95">
+					<printWhenExpression><![CDATA[]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineColor="#CCCCCC"/>
+					<topPen lineWidth="0.5" lineColor="#999999"/>
+					<leftPen lineWidth="0.0" lineColor="#CCCCCC"/>
+					<bottomPen lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#999999"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="140" width="10" height="10" uuid="cd249303-39a9-4a99-a771-f17020871f2c">
+					<printWhenExpression><![CDATA[]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineColor="#CCCCCC"/>
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#999999"/>
+					<bottomPen lineWidth="0.5" lineColor="#999999"/>
+					<rightPen lineColor="#CCCCCC"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="58" y="140" width="10" height="10" uuid="a07d642f-7ef7-4648-b0e6-2249ba2b10cc">
+					<printWhenExpression><![CDATA[]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineColor="#CCCCCC"/>
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.0" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#999999"/>
+					<rightPen lineWidth="0.5" lineColor="#999999"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="71" width="10" height="10" forecolor="#CCCCCC" uuid="4d417df2-f91c-4245-b9d1-dc6422725fd4">
+					<printWhenExpression><![CDATA[]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineColor="#CCCCCC"/>
+					<topPen lineWidth="0.5" lineColor="#999999"/>
+					<leftPen lineWidth="0.5" lineColor="#999999"/>
+					<bottomPen lineColor="#CCCCCC"/>
+					<rightPen lineColor="#CCCCCC"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="215" y="112" width="50" height="20" uuid="81fe8520-e0a5-4dc2-8eed-cb4025ef2c9e"/>
+				<box>
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SoberanaSansReport" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cct}.trim().contains("20ADG") || $F{cct}.trim().contains("34EXT") || $F{cct}.trim().contains("34EUA") ?
+(
+    ""
+):
+( ($F{af}==2013 && $F{cveplan}==2 && $F{promlet_educbasic}.length()>0) ?
+    ( $F{prom_educbasic} >= 6.0 && $F{prom_educbasic} <= 10.0?
+        (
+            $F{prom_educbasic} == 10.0
+            ? "10"
+            : $F{prom_educbasic_str}
+        )
+        :"A"
+    ):
+    ( $F{promedio} >= 6.0 && $F{promedio} <= 10.0 ?
+        (
+            $F{promedio} == 10.0
+            ? "10"
+            : $F{promedio_str}
+        )
+        :"A"
+    )
+)]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

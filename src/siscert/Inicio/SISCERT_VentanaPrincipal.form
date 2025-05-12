@@ -417,7 +417,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="pnlSISCERT" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="pnlBusqueda" min="-2" pref="319" max="-2" attributes="0"/>
+                      <Component id="pnlBusqueda" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="pnlSINCE" max="32767" attributes="0"/>
                   </Group>
@@ -445,7 +445,6 @@
   <SubComponents>
     <Container class="javax.swing.JToolBar" name="jToolBar1">
       <Properties>
-        <Property name="floatable" type="boolean" value="false"/>
         <Property name="rollover" type="boolean" value="true"/>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[821, 33]"/>
@@ -567,6 +566,30 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnEliminar_ActionPerformed"/>
           </Events>
         </Component>
+        <Component class="javax.swing.JButton" name="btnCanceFolio">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/iconos/cancelar.png"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Cancelar Folio"/>
+            <Property name="enabled" type="boolean" value="false"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="4"/>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[130, 51]"/>
+            </Property>
+            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[130, 51]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[115, 51]"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCanceFolioActionPerformed"/>
+          </Events>
+        </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator10">
         </Component>
         <Component class="javax.swing.JButton" name="btnImprimir">
@@ -580,6 +603,29 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnImprimir_ActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnReimprimir">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/iconos/imprimir.png"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Reimprimir"/>
+            <Property name="enabled" type="boolean" value="false"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="4"/>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[105, 51]"/>
+            </Property>
+            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[105, 51]"/>
+            </Property>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[98, 51]"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReimprimirActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnEditarFolsImpres">
@@ -646,7 +692,7 @@
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
-                          <Component id="txtBuscar" max="32767" attributes="0"/>
+                          <Component id="txtBuscar" pref="118" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace min="-2" pref="100" max="-2" attributes="0"/>
@@ -700,10 +746,9 @@
         <Component class="javax.swing.JComboBox" name="cbxBuscarEn">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="3">
+              <StringArray count="2">
                 <StringItem index="0" value="SISCERT"/>
                 <StringItem index="1" value="SICEEB"/>
-                <StringItem index="2" value="DUPLICADOS IMPRESOS"/>
               </StringArray>
             </Property>
           </Properties>
@@ -789,7 +834,7 @@
                       <Group type="102" attributes="0">
                           <Component id="scrlpSICEEB" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jPanel1" max="32767" attributes="0"/>
+                          <Component id="jPanel1" pref="610" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnImportar" min="-2" max="-2" attributes="0"/>
@@ -808,7 +853,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="scrlpSICEEB" min="-2" pref="137" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jPanel1" pref="148" max="32767" attributes="0"/>
+                      <Component id="jPanel1" pref="150" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="btnImportar" min="-2" max="-2" attributes="0"/>
@@ -904,7 +949,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="scrlpFoliosSICEEB" pref="331" max="32767" attributes="0"/>
+                      <Component id="scrlpFoliosSICEEB" pref="588" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -913,7 +958,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="scrlpFoliosSICEEB" pref="0" max="32767" attributes="0"/>
+                      <Component id="scrlpFoliosSICEEB" pref="115" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -1015,7 +1060,7 @@
                               </Group>
                               <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="519" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>

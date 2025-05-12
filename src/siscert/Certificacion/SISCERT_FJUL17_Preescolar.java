@@ -128,7 +128,8 @@ public class SISCERT_FJUL17_Preescolar extends javax.swing.JDialog {
     {
         boolean guardado = false, hacerCommit=false;
         String datEscu[], fechaExpedicion, dictamen;
-        
+        String estatus_cance = "";
+        Map datos = new HashMap();
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
         if (validarEntradas())
         {
@@ -136,19 +137,29 @@ public class SISCERT_FJUL17_Preescolar extends javax.swing.JDialog {
                 conexion.conectarConTransaccion();                              //Creamos una transacción para bloquear las tablas a usar
                 if (casoLlamada.equals("Nuevo") || casoLlamada.equals("Importar"))
                     global.NoControl = conexion.obtenerIdcertiregion(global.cveunidad, global.cveplan);
-                if (!global.NoControl.equals("")){                                // Si no se pudo asignar una clave, cerramos la ventana
+                if (!global.NoControl.equals("")) {                                // Si no se pudo asignar una clave, cerramos la ventana
                     //global.convertirPromedioALetra(txtPromedioNum.getText());  // Preescolar no lleva promedio
                     datEscu = getDatosEscuela ();
                     fechaExpedicion = global.convertirTextoAFecha(""+cbxDiaExpedicion.getSelectedItem(),""+cbxMesExpedicion.getSelectedItem(),lblAnioExpedicion.getText().toLowerCase().replace("del ", ""));
                     dictamen = "";//Revision--> txtDictamenNumero.getText().trim().equals("")?"":"DICTAMEN/"+txtDictamenNumero.getText().trim()+"-"+txtDictamenFecha.getText().trim();
                     
+                    datos = conexion.verificarFolioExistente(idAluSICEEB, "3");
+                    estatus_cance = conexion.verificarEnCancelados(idAluSICEEB, "3");
+                    if(datos.get("strFirma").toString().isEmpty() && datos.get("strFolios").toString().isEmpty() &&
+                        (estatus_cance.isEmpty() || 
+                            (!estatus_cance.equals("100") && !estatus_cance.equals("99") && !estatus_cance.equals("1"))))
                     conexion.guardarAlumnoPrim(idAluSICEEB, global.NoControl, casoLlamada, (""+cbxCicloCLD.getSelectedItem()).substring(0,4), global, txtNombre.getText(),
                             txtApePaterno.getText(),txtApeMaterno.getText(), idsCasocurp.get(cbxCasocurp.getSelectedIndex()), txtCurp.getText(), bkuCurp,false/*chkEsCEBAS.isSelected()*/,
                             ""/*(chkEsCEBAS.isSelected()?""+cbxDiaCEBAS.getSelectedItem():"")*/, ""+cbxMesAcreditacion.getSelectedItem(),"",txtAnioAcreditacion.getText(), getFechaLetCEBAS (), 
                             getPromedioNum (), ""/*lblPromedioLetra.getText()*/, fechaExpedicion,txtLibro.getText(),txtFoja.getText(),txtFolio.getText(),getFolio(),datEscu[0],datEscu[1],
                             datEscu[2], datEscu[3], datEscu[4],datEscu[5],dictamen,global.lugaresValidacion.get(0/*cbxLugarValidacion.getSelectedIndex()*/)[0], false/*chkActualizarVars.isSelected()*/, 
                             this.idFormatoCert, ""+cbxTipoNumsolicitud.getSelectedItem(), txtNumSolicitud.getText().trim(),cambioEnCurpONombre, cveUnidad59);
-                    
+                    else if(!datos.get("strFirma").toString().isEmpty()) 
+                        throw new Exception ("TIENE_FIRMA"); 
+                    else if(!datos.get("strFolios").toString().isEmpty())
+                        throw new Exception ("TIENE_FOLIOS");
+                    else if(estatus_cance.equals("100") || estatus_cance.equals("99") || estatus_cance.equals("1"))
+                        throw new Exception ("PENDIENTE_CANCE");                      
                     bkuCurp = txtCurp.getText().trim();                           //Respaldamos el texto del campo curp, por si el usuario cambia la curp, en la consulta que hagamos ya no nos afecte
                     cbxTipoNumsolicitud.setSelectedItem("Actual");
                     cambios (false);
@@ -157,20 +168,26 @@ public class SISCERT_FJUL17_Preescolar extends javax.swing.JDialog {
                     if (actualizarTblSISCERT && buscarEnSISCERTSelect && this.posSelTblSISCERT!=-1)
                         actualizartblSISCERT ();                                    //Para actualizar la tabla de búsqueda SISCERT
                     guardado = true;
-                    hacerCommit = true;
+                    hacerCommit = true; //Des-comentado 03-03-2025
                 }else
                     mensaje.General(this,"CONEXION", "","");
             }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
             catch (Exception ex){ 
                 if (ex.getMessage().contains("ALUMAT_CVEPROGRAMA"))
                     mensaje.Preescolar("ALUMAT_CVEPROGRAMA", "", "");
+                else if (ex.getMessage().contains("TIENE_FIRMA"))
+                    mensaje.Preescolar("TIENE_FIRMA",datos.get("strFirma").toString(), "");
+                else if (ex.getMessage().contains("TIENE_FOLIOS"))
+                    mensaje.Preescolar("TIENE_FOLIOS",datos.get("strFolios").toString(), "");
+                else if (ex.getMessage().contains("PENDIENTE_CANCE"))
+                    mensaje.Preescolar("PENDIENTE_CANCE","", "");
                 else if (ex.getMessage().contains("ALU_EN_SICCEB")) {
                     if (casoLlamada.equals("Editar") && idAluSICEEB.equals(""))
                         mensaje.ModuloCertificacion(this,"LIGAR_CURP_CON_IDALU", txtCurp.getText(), "");
                     else
                         mensaje.Preescolar("ALU_EN_SICCEB", "", "");
-                }else if (ex.getMessage().contains("CERTIDUP_EXISTENTE"))
-                    mensaje.Secundaria("CERTIDUP_EXISTENTE", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
+                } else if (ex.getMessage().contains("CERTIDUP_EXISTENTE"))
+                    mensaje.Preescolar("CERTIDUP_EXISTENTE", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
                 else if (ex.getMessage().contains("NUMSOLICITUD_EXISTENTE"))
                     mensaje.ModuloCertificacion(this,"NUMSOLICITUD_EXISTENTE", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
                 else if (ex.getMessage().contains("FOLIO_EN_FOLIOSIMPRE"))
@@ -205,7 +222,7 @@ public class SISCERT_FJUL17_Preescolar extends javax.swing.JDialog {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
         try {
             conexion.conectar();                         //Conectamos
-            rs = conexion.selecAnvRevParaEditar (global.NoControl, global.curp, global.cveplan, global.cveunidad);
+            rs = conexion.selecAnvRevParaEditar (global.NoControl, global.curp, global.cveplan, global.cveunidad, global.verUnidades);
             rs.next();
                     //************** Cargamos los datos del alumno **************
             bkuDelegacion = rs.getString("delegacion").trim();

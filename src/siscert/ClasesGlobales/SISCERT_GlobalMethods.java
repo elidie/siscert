@@ -19,9 +19,9 @@ public class SISCERT_GlobalMethods  {
     private boolean datos;
 
     //String delegacion, claveTrabajo, lugar, cotejo, delegado, cargoDelegado, diaLetra, mesAñoLetra;
-    public String idAluSICEEB,idcertificacion, NoControl, numSolicitud, cicescinilib, diaLetra, mesAñoLetra, fecha;
+    public String idAluSICEEB,idcertificacion, NoControl, numSolicitud, cicescinilib, diaLetra, mesAñoLetra, fecha, idfolimpre;
     public String globalDelegacion, globalCCTDelegacion, globalLugarExpedicion, globalDelegado, globalCargoDelegado, globalCotejo;
-    public boolean cebas;
+    public boolean cebas, verUnidades=false;
     //String globalDelegacion, globalCCTDelegacion
         //------------- ANVERSO -------------
     public String ieepo, idfolim_var, delegacion, cctDelegacion, nombre, primerApe, segundoApe, idcasocurp, curp, lugarExpedicion, diaExped_let, mesAñoExpedicion, fechaExpedLet, delegado, cargoDelegado;   //TRONCO COMUN
@@ -30,7 +30,7 @@ public class SISCERT_GlobalMethods  {
     public String diaAcreditacion, mesAcreditacion, añoAcreditación, fechaAcrediLet, cursoYAcredito;                                    //Variante secundaria
         //------------- REVERSO -------------
     public String libro,foja,folio,escuela,cctEscuela,fechaExpedicion, cotejo, juridico;          //TRONCO COMÚN
-    public String plan;                                                                //Variante secundaria
+    public String plan, cveplan_siceeb, msg="";                                                                //Variante secundaria
     public String idleyenda_lugvalid, lugarValidacion;
     public ArrayList<String[]> lugaresValidacion = new ArrayList<String[]>();
 

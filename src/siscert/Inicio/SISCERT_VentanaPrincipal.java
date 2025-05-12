@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import java.util.HashMap;
+import java.util.Map;
 import net.sf.jasperreports.engine.JRException;
 import siscert.AccesoBD.SISCERT_QueriesInformix;
 import siscert.Administrador.SISCERT_AgregarEscuelaHistorica;
@@ -59,10 +61,10 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         
         
         //---------------- CONFIGURAMOS LAS TABLAS DE FOLIOS IMPRESOS  ------------------
-        modelFolImpre = new SISCERT_ModeloDeTabla(new String [] {"idfolimpre", "idalu", "Num. Solicitud","cicescinilib","foliolet", "folionum","nombre", "primerape", "segundoape", "curp", "cicescini", "cicescfin", "prom_educprim", "promedio", "prom_educbasic", "libro", "foja", "folio", "escuela", "cct", "fecha", "estatus_impre", "fechainsert"});
+        modelFolImpre = new SISCERT_ModeloDeTabla(new String [] {"idfolimpre", "idalu", "Num. Solicitud","cicescinilib","foliolet", "folionum","nombre", "primerape", "segundoape", "curp", "cicescini", "cicescfin", "prom_educprim", "promedio", "prom_educbasic", "libro", "foja", "folio", "escuela", "cct", "fecha", "estatus_impre", "fechainsert","usuario","fechatimbradoieepo","foliodigital"});
         //---------------- CONFIGURAMOS LAS TABLAS DE ALUMNOS SISCERT  ------------------
-        modelSISCERT = new SISCERT_ModeloDeTabla(new String [] {"N.P.","No. CONTROL", "NUM. SOL.", "foja","FOLIOS PARA EL LIBRO", "idAlu","NOMBRE", "PRIMER APELLIDO", "SEGUNDO APELLIDO", "CURP", "TIPO EDUC","FORMATO IMPRESIÓN"},new String [] {"idcertificacion"});
-        modelSISCERT.setAlias(new String [][]{{"np","0"},{"numCtrl","1"},{"numSol","2"},{"foja","3"},{"cicescinilib","4"},{"idalu","5"},{"nombre","6"},{"primerApe","7"},{"segundoApe","8"},{"curp","9"},{"tipoEduc","10"},{"formatoImp","11"}}, new String [][]{{"idcertificacion","0"}});
+        modelSISCERT = new SISCERT_ModeloDeTabla(new String [] {"N.P.","No. CONTROL", "NUM. SOL.", "foja","FOLIOS PARA EL LIBRO", "idAlu","NOMBRE", "PRIMER APELLIDO", "SEGUNDO APELLIDO", "CURP", "TIPO EDUC","FORMATO IMPRESIÓN","FOLIO"},new String [] {"idcertificacion"});
+        modelSISCERT.setAlias(new String [][]{{"np","0"},{"numCtrl","1"},{"numSol","2"},{"foja","3"},{"cicescinilib","4"},{"idalu","5"},{"nombre","6"},{"primerApe","7"},{"segundoApe","8"},{"curp","9"},{"tipoEduc","10"},{"formatoImp","11"},{"folio","12"}}, new String [][]{{"idcertificacion","0"}});
         tblSISCERT.setModel(modelSISCERT);
         //---------------- CONFIGURAMOS LAS TABLAS DE ALUMNOS SICEEB  ------------------
         modelSICEEB = new SISCERT_ModeloDeTabla(new String [] {"idalu", "NOMBRE", "PRIMER APELLIDO", "SEGUNDO APELLIDO", "CURP"});
@@ -158,6 +160,39 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             mensaje.ventanaPrincipal ("NO_SELEC", "SISCERT un","editarlo");
     }
 
+    public void ReimprimirAlumno()
+    {
+        String[] dato;
+        if (!(tbtnPreescolar.isSelected() || tbtnPrimaria.isSelected() || tbtnSecundaria.isSelected()))
+            mensaje.ventanaPrincipal ("CVEPLAN", "","");
+        else if (cbxFormatoCertif.getSelectedIndex()==-1)
+            mensaje.ventanaPrincipal ("FORMATO_CERTIFICADO", "","");
+        else if (tblSISCERT.getSelectedRow()!= -1){
+            global.NoControl = ""+modelSISCERT.getValueAt(tblSISCERT.getSelectedRow(), "numCtrl");   //obtenemos el número de control
+            global.curp = ""+modelSISCERT.getValueAt(tblSISCERT.getSelectedRow(), "curp");        //obtenemos la curp
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
+            /*try {
+                if (tbtnPreescolar.isSelected())                                        //preescolar
+                    alumnoPreescolar ("Editar");
+                else if (tbtnPrimaria.isSelected())                                     //primaria
+                    alumnoPrimaria ("Editar");
+                else if (tbtnSecundaria.isSelected())                                   //secundaria
+                    alumnoSecundaria ("Editar");
+            }catch (Exception ex) {
+                if (ex.getMessage().contains("SIN_CERTIFICADO"))
+                    mensaje.General(this,"SIN_CERTIFICADO", "", "");
+                else if (ex.getMessage().contains("FORMATO_PARA_CLF")){
+                    dato = ex.getMessage().substring(ex.getMessage().indexOf('*')+1).split("~");
+                    mensaje.Secundaria ("FORMATO_PARA_CLF",dato[0],dato[1]);
+                }else
+                    mensaje.General(this,"GENERAL", ""+ex, "");
+            }finally {
+                this.setCursor(Cursor.getDefaultCursor());                      //Cambiamos la forma del puntero a default        
+            }*/
+        }else
+            mensaje.ventanaPrincipal ("NO_SELEC", "SISCERT un","editarlo");
+    }
+        
     public void ImportarAlumno() {
         String[] dato;
         if (!(tbtnPreescolar.isSelected() || tbtnPrimaria.isSelected() || tbtnSecundaria.isSelected())) //Si hay algún nivel de escolaridad seleccionado
@@ -168,17 +203,16 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             mensaje.ventanaPrincipal ("NO_SELEC", "SICEEB un","importalo");
         else {                                                                  //Si está seleccionado algún alumno en la tabla
             global.NoControl = tblSICEEB.getValueAt(tblSICEEB.getSelectedRow(), 0).toString();   //obtenemos el número de control
-            global.curp = tblSICEEB.getValueAt(tblSICEEB.getSelectedRow(), 4).toString();        //obtenemos la curp
-            
+            global.curp = tblSICEEB.getValueAt(tblSICEEB.getSelectedRow(), 4).toString();        //obtenemos la curp            
             try{
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); //Cambiamos la forma del puntero a reloj de arena
                 if (tbtnPreescolar.isSelected()){                                //preescolar
                     verifPuedeImportar ("Preescolar");
-                    alumnoPreescolar ("Importar");
-                }else if (tbtnPrimaria.isSelected()){                             //primaria
+                    alumnoPreescolar ("Importar");                    
+                } else if (tbtnPrimaria.isSelected()){                             //primaria                    
                     verifPuedeImportar ("Primaria");
                     alumnoPrimaria ("Importar");
-                }else if (tbtnSecundaria.isSelected()){                           //secundaria
+                } else if (tbtnSecundaria.isSelected()){                           //secundaria                   
                     verifPuedeImportar ("Secundaria");
                     alumnoSecundaria ("Importar");
                 }
@@ -196,6 +230,8 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                     mensaje.ventanaPrincipal("CICLO_ESTUD_Y_FOLIO", "", "");
                 else if (ex.getMessage().equals("IMPORTACION_CINCONUEVE"))
                     mensaje.ventanaPrincipal("IMPORTACION_CINCONUEVE", "", "");
+                else if (ex.getMessage().equals("ALUMNO_CAPTURADO"))
+                    mensaje.ventanaPrincipal("ALUMNO_CAPTURADO", global.msg, "");
                 else 
                     mensaje.General(this,"GENERAL", ""+ex, "");
             }finally { this.setCursor(Cursor.getDefaultCursor()); }
@@ -211,14 +247,16 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
     private void verifPuedeImportar (String nivel) throws Exception
     {
         int posNivel;
-        
-        if ((posNivel=modelFoliosSICEEB.indexOf(nivel, 0))!=-1){
+                
+        if ((posNivel=modelFoliosSICEEB.indexOf(nivel, 0))!=-1) { 
             if (modelFoliosSICEEB.getValueAt(posNivel, 6) == null)
-                throw new  Exception ("CICLO_ESTUD_Y_FOLIO");
+                throw new Exception ("CICLO_ESTUD_Y_FOLIO");
             if (!(""+modelFoliosSICEEB.getValueAt(posNivel, 6)).trim().equals("C"))
-                throw new  Exception ("ESTATUS_GRADO");
+                throw new Exception ("ESTATUS_GRADO");
             /*if ((""+modelFoliosSICEEB.getHiddenValueAt(posNivel, "grupo")).contains("_") && permisoCinco9==false)//!global.cveunidad.equals("CINCO9"))
                 throw new  Exception ("IMPORTACION_CINCONUEVE");*/
+            if((global.msg=verificarAlumno(nivel)).length()>0)
+                throw new Exception ("ALUMNO_CAPTURADO");
         }     
     }
 
@@ -247,6 +285,40 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                             if (ex.getMessage().contains("CANCELAR_PARA_BORRAR"))
                                 mensaje.ventanaPrincipal("CANCELAR_PARA_BORRAR", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
                             else
+                            mensaje.General(this,"GENERAL", ex.getMessage(), ""); 
+                        }finally{ this.setCursor(Cursor.getDefaultCursor()); }
+                        try { conexion.cerrarConexion(); } catch (SQLException ex) { }
+                        break;
+                    case JOptionPane.NO_OPTION: break;
+                }
+        }
+    }
+    
+    public void cancelarFolio() {
+        if (btnCanceFolio.isVisible())                                            //Por cuestiones de permisos
+        {
+            if (!(tbtnPreescolar.isSelected() || tbtnPrimaria.isSelected() || tbtnSecundaria.isSelected()))
+                mensaje.ventanaPrincipal ("CVEPLAN", "","");
+            else if (tblSISCERT.getSelectedRow()== -1)
+                mensaje.ventanaPrincipal ("NO_SELEC", "SISCERT un","CANCELAR duplicado");
+            else
+                switch (JOptionPane.showConfirmDialog(null, "¿Confirma que desea cancelar el duplicado de este alumno?", "Pregunta emergente", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE))
+                {
+                    case JOptionPane.YES_OPTION:
+                        global.idfolimpre = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(), 0).toString();
+                        global.idAluSICEEB = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(),1).toString();
+                        global.cicescinilib = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(), 3).toString();   //obtenemos el número de control                                                            
+                        
+                        try {
+                            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); //Cambiamos la forma del puntero a reloj de arena
+                            conexion.conectar();
+                            conexion.cancelarFolio (global.idfolimpre, global.idAluSICEEB,global.cicescinilib, global.cveplan, global.capturista);  //Borramos al alumno de la base de datos
+                            modelFolImpre.removeRow(tblSISCERT.getSelectedRow());
+                        }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+                        catch (Exception ex){ 
+                            /*if (ex.getMessage().contains("CANCELAR_PARA_BORRAR"))
+                                mensaje.ventanaPrincipal("CANCELAR_PARA_BORRAR", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
+                            else*/ 
                             mensaje.General(this,"GENERAL", ex.getMessage(), ""); 
                         }finally{ this.setCursor(Cursor.getDefaultCursor()); }
                         try { conexion.cerrarConexion(); } catch (SQLException ex) { }
@@ -448,7 +520,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             mensaje.ventanaPrincipal ("SIN_BUSCAR_POR", (cbxBuscarEn.getSelectedItem().equals("SISCERT"))?"No. Control":"idAlu","");
         else if (txtBuscar.getText().equals(""))                            //Si no hay texto qué buscar
             mensaje.ventanaPrincipal ("NO_TEXTO_DE_BUSQUEDA", "","");
-        else{
+        else {
             if (cbxBuscarEn.getSelectedItem().equals("SICEEB"))
                 buscarEnSICEEB();
             else if (cbxBuscarEn.getSelectedItem().equals("SISCERT"))
@@ -474,7 +546,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             //Quitar--> smnuImprimir_Certificado.setEnabled(false);
             conexion.selecAlumnoSICEEBFiltro(modelSICEEB, txtBuscar.getText(),buscarPor,global.cveunidad,global.cveplan); //Hacemos la consulta
             ok=true;
-        }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+        } catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
         catch (Exception ex){ 
             if (ex.getMessage().contains("FORMAT_BUSQNOM") || ex.getMessage().contains("FALTACURP_BUSQNOM") || ex.getMessage().contains("IDALU_ERRONEO")){
                 mensaje.ventanaPrincipal(ex.getMessage(), "", "");
@@ -496,7 +568,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             conexion.conectar();
             modelFoliosSICEEB.removeAllItems();
             conexion.getFoliosAlumnoSICCEB (idalu,modelFoliosSICEEB);
-        }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+        } catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
         catch (Exception ex){ mensaje.General(this,"GENERAL", ex.getMessage(), ""); }
         finally {
             try { conexion.cerrarConexion(); } catch (SQLException ex) { }
@@ -521,7 +593,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             tblSISCERT.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
             //Quitar--> btnImprimir.setEnabled(true);
             //Quitar--> smnuImprimir_Certificado.setEnabled(true);
-            conexion.selecAlumnoSISCERTFiltro(modelSISCERT, txtBuscar.getText(),buscarPor,global.cveunidad,global.cveplan,formatosCertActivos.get(cbxFormatoCertif.getSelectedIndex())[0]); //Hacemos la consulta
+            conexion.selecAlumnoSISCERTFiltro(modelSISCERT, txtBuscar.getText(),buscarPor,global.cveunidad,global.cveplan,formatosCertActivos.get(cbxFormatoCertif.getSelectedIndex())[0], global.verUnidades); //Hacemos la consulta
         }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
         catch (Exception ex){ 
             if (ex==null || ex.getMessage() == null)
@@ -541,6 +613,26 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         return true;
     }
     
+    private String verificarAlumno(String nivel)
+    { 
+        String msg = "", cvenivel = "";
+        cvenivel = nivel.equals("Primaria") ? "1" : (nivel.equals("Secundaria")? "2": "3");
+        
+        try{
+            conexion.conectar();
+            msg = conexion.buscarEnSICEERT(global.curp, cvenivel, global.NoControl, global.verUnidades);            
+        }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+        catch (Exception ex){ 
+            if (ex.getMessage().contains("NO_CONTROL_ERRONEO") || ex.getMessage().contains("FORMAT_BUSQNOM") || ex.getMessage().contains("FALTACURP_BUSQNOM") || ex.getMessage().contains("FORMAT_BUSQFOL") || ex.getMessage().contains("FORMAT_BUSQSOLI")){
+                mensaje.ventanaPrincipal(ex.getMessage(), "", "");
+                this.setCursor(Cursor.getDefaultCursor());                
+            }else
+                mensaje.General(this,"GENERAL", ex.getMessage(), ""); }        
+        try { conexion.cerrarConexion(); } catch (SQLException ex) { }
+        this.setCursor(Cursor.getDefaultCursor());    
+        return msg;
+    }
+    
     private boolean buscarEnDuplicadosImpresos ()
     {
         String buscarPor;
@@ -557,7 +649,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             modelFolImpre.setScrollHorizontal(tblSISCERT, scrlpSISCERT);
             //Quitar--> btnImprimir.setEnabled(false);
             //Quitar--> smnuImprimir_Certificado.setEnabled(false);
-            conexion.selecDuplicadosImpresosFiltro(modelFolImpre, txtBuscar.getText().trim(),buscarPor,global.cveunidad,global.cveplan); //Hacemos la consulta
+            conexion.selecDuplicadosImpresosFiltro(modelFolImpre, txtBuscar.getText().trim(),buscarPor,global.cveunidad,global.cveplan, global.capturista, global.verUnidades); //Hacemos la consulta
         }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
         catch (Exception ex){ 
             if (ex.getMessage().contains("NO_CONTROL_ERRONEO") || ex.getMessage().contains("FORMAT_BUSQNOM") || ex.getMessage().contains("FALTACURP_BUSQNOM") || ex.getMessage().contains("FORMAT_BUSQFOL") || ex.getMessage().contains("FORMAT_BUSQSOLI")){
@@ -632,14 +724,19 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         try {
             String[] objetos = {"menuAdministrador", "nuevoDuplicado","cambiarCveunidad","eliminarCertif","importar",
                                 "editarFoliosImp","menuHerramientas","smnuCrearleCertifAAlumno","smnuAgregarEscuelaHistorica",
-                                "smnuAsociarIdalu", "verCinco9","smnuGenerarAuditoria"};
+                                "smnuAsociarIdalu", "verCinco9","smnuGenerarAuditoria",
+                                "reimprimirDuplicado","cancelarDuplicado","imprimir"};
             boolean[] objPermisos;
             int i=0;
             
             conexion.conectar();
-            objPermisos=conexion.getEstosPermisos("" + global.idcapturista, "moduloCertificacion", new String []{"guardarCertificacion","noValidarEdad"}); 
+            objPermisos=conexion.getEstosPermisos("" + global.idcapturista, "moduloCertificacion", new String []{"guardarCertificacion","noValidarEdad","verUnidades"}); 
             permisoGuardarCertificaciones = objPermisos[0];
             permisoDeNoValidarEdad = objPermisos[1];
+            global.verUnidades = objPermisos[2];
+            if(global.verUnidades)
+                cbxBuscarEn.addItem("DUPLICADOS IMPRESOS");
+            
             objPermisos = conexion.getEstosPermisos("" + global.idcapturista, "VentanaPrincipal", objetos);
             
             for (String objeto : objetos){
@@ -648,7 +745,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                 }else if (objeto.equals(objetos[1])){
                     btnNuevo.setVisible(objPermisos[i]);
                     smnuNuevo.setVisible(objPermisos[i]);
-                }else if (objeto.equals(objetos[2])){
+                }else if (objeto.equals(objetos[2])){                    
                     lblCambiarCveunidad.setVisible(objPermisos[i]);
                     cbxCambiarCveunidad.setVisible(objPermisos[i]);
                 }else if (objeto.equals(objetos[3])){
@@ -675,9 +772,14 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                 }else if (objeto.equals(objetos[10])){
                     verCinco9 = objPermisos[i];
                 }else if (objeto.equals(objetos[11])){
-                    smnuGenerarAuditoria.setVisible(objPermisos[i]);
-                }
-                    
+                    smnuGenerarAuditoria.setVisible(objPermisos[i]);                
+                }else if (objeto.equals(objetos[12])){
+                    btnReimprimir.setVisible(objPermisos[i]);
+                }else if (objeto.equals(objetos[13])){
+                    btnCanceFolio.setVisible(objPermisos[i]);
+                }else if (objeto.equals(objetos[14])){
+                    btnImprimir.setVisible(objPermisos[i]);
+                }                    
                 i++;
             }
         } catch(SQLException ex) { mensaje.General(this,"CONEXION", ex.getMessage(), "");  } 
@@ -743,8 +845,58 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             try { conexion.cerrarConexion(); } catch (SQLException ex) { }
         }
     }
+    
+    public void reimpresion () throws JRException 
+    {
+        if (!(tbtnPreescolar.isSelected() || tbtnPrimaria.isSelected() || tbtnSecundaria.isSelected())) //Si hay algún nivel de escolaridad seleccionado
+            mensaje.ventanaPrincipal ("CVEPLAN", "","");        
+        else if (tblSISCERT.getSelectedRow()== -1)
+            mensaje.ventanaPrincipal ("NO_SELEC", "SISCERT un","reimprimir");
+        else {   
+            global.idAluSICEEB = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(),1).toString();
+            global.cicescinilib = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(), 3).toString();   //obtenemos el número de control
+            global.curp = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(), 9).toString();
+            global.idfolimpre = tblSISCERT.getValueAt(tblSISCERT.getSelectedRow(), 0).toString();
+            
+            try { 
+                
+                if(Integer.parseInt(global.cicescinilib)<2017)
+                    throw new Exception ("NO_CICLO");
+            
+                SISCERT_Reporte reporte = new SISCERT_Reporte(global.cveplan,this.conexion,global.tipoConexion); //Para certificacion
+                reporte.generarReporte(global.idAluSICEEB , global.cicescinilib, global.idfolimpre);      //mandamos los datos al reporte para visualizar la credencial
+                reporte.cerrarConexion ();                
+            } catch (JRException ex) { mensaje.ventanaPrincipal ("REPORTE", "Reportes de Certificación","" + ex); }
+              catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+            catch (Exception ex){ 
+                if (ex.getMessage().contains("NO_CICLO") )
+                    mensaje.ventanaPrincipal(ex.getMessage(), "", "");
+                else
+                    mensaje.General(this,"GENERAL", ex.getMessage(), ""); }
+            try { conexion.cerrarConexion(); } catch (SQLException ex) { }
+        }
+    }
 
-
+    public void verReporteCertificacion() throws JRException {
+        String reportes = "certificacionSemielectronico_2022";
+        String formatoATrabajar;
+        if (!(tbtnPreescolar.isSelected() || tbtnPrimaria.isSelected() || tbtnSecundaria.isSelected()))
+            mensaje.ventanaPrincipal ("CVEPLAN", "","");
+        else if (txtSelIni.getText().equals("") || txtSelFin.getText().equals(""))
+            mensaje.ventanaPrincipal("NO_SELEC", "SISCERT usando F1 y F4 algunos o algún", "ver el reporte");
+        else{                             //Si hay seleccionado alguna fila
+            try {                
+                    SISCERT_Reporte reporte = new SISCERT_Reporte(global.cveplan,this.conexion,global.tipoConexion);                      //Creamos el objeto de tipo reporte
+                    formatoATrabajar=""+modelSISCERT.getValueAt(modelSISCERT.indexOf(txtSelIni.getText(), 0), "formatoImp");
+                    reporte.generarReporte(""+modelSISCERT.getValueAt(Integer.parseInt(txtSelIni.getText())-1,"numSol") , ""+modelSISCERT.getValueAt(Integer.parseInt(txtSelFin.getText())-1,"numSol"), global.cveunidad, (""+modelSISCERT.getValueAt(Integer.parseInt(txtSelIni.getText())-1,"cicescinilib")).substring(0, 4), formatosCertActivos.get(cbxFormatoCertif.getSelectedIndex())[0], formatoATrabajar);      //mandamos los datos al reporte para visualizar la credencial
+                    reporte.cerrarConexion ();
+            } catch (JRException ex) { mensaje.ventanaPrincipal ("REPORTE",reportes ,"" + ex); }
+              catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+            catch (Exception ex){ mensaje.General(this,"GENERAL", ex.getMessage(), ""); }
+            try { conexion.cerrarConexion(); } catch (SQLException ex) { }
+        }
+    }
+    
     public void setNivelPreescolar()
     {
         try {
@@ -829,6 +981,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             tblSISCERT.setModel(modelSISCERT);
             tblSISCERT.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
             habilitar = true;
+            imprimir = false;
         }else if (cbxBuscarEn.getSelectedItem().equals("SICEEB")){
             cbxBuscarPor.addItem("idAlu");
             cbxBuscarPor.addItem("CURP");
@@ -838,6 +991,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             tblSISCERT.setModel(modelSISCERT);
             tblSISCERT.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
             habilitar = false;
+            imprimir=false;
         }else if (cbxBuscarEn.getSelectedItem().equals("DUPLICADOS IMPRESOS")){
             cbxBuscarPor.addItem("CURP");
             cbxBuscarPor.addItem("Nombre");
@@ -848,6 +1002,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             tblSISCERT.setModel(modelFolImpre);
             modelFolImpre.setScrollHorizontal(tblSISCERT, scrlpSISCERT);
             habilitar = false;
+            imprimir=true;
         }
         lockCbxBuscarPor=false;
         modelFolImpre.removeAllItems();
@@ -860,10 +1015,11 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         smnuEditar.setEnabled(habilitar);
         smnuNuevo.setEnabled(habilitar);
         smnuBorrar.setEnabled(habilitar);
-        smnuReporte.setEnabled(habilitar);
-        
+        smnuReporte.setEnabled(habilitar);        
         btnImprimir.setEnabled(habilitar);
         smnuImprimir_Certificado.setEnabled(habilitar);
+        btnCanceFolio.setEnabled(imprimir);
+        btnReimprimir.setEnabled(imprimir);
     }
 
     /** This method is called from within the constructor to
@@ -888,8 +1044,10 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         btnEditar = new javax.swing.JButton();
         jSeparator9 = new javax.swing.JToolBar.Separator();
         btnEliminar = new javax.swing.JButton();
+        btnCanceFolio = new javax.swing.JButton();
         jSeparator10 = new javax.swing.JToolBar.Separator();
         btnImprimir = new javax.swing.JButton();
+        btnReimprimir = new javax.swing.JButton();
         btnEditarFolsImpres = new javax.swing.JButton();
         jSeparator11 = new javax.swing.JToolBar.Separator();
         lblCambiarCveunidad = new javax.swing.JLabel();
@@ -963,7 +1121,6 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setMaximumSize(new java.awt.Dimension(821, 33));
         jToolBar1.setPreferredSize(new java.awt.Dimension(100, 33));
@@ -1049,6 +1206,22 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             }
         });
         jToolBar1.add(btnEliminar);
+
+        btnCanceFolio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/cancelar.png"))); // NOI18N
+        btnCanceFolio.setText("Cancelar Folio");
+        btnCanceFolio.setEnabled(false);
+        btnCanceFolio.setFocusable(false);
+        btnCanceFolio.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnCanceFolio.setMaximumSize(new java.awt.Dimension(130, 51));
+        btnCanceFolio.setMinimumSize(new java.awt.Dimension(130, 51));
+        btnCanceFolio.setName(""); // NOI18N
+        btnCanceFolio.setPreferredSize(new java.awt.Dimension(115, 51));
+        btnCanceFolio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCanceFolioActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(btnCanceFolio);
         jToolBar1.add(jSeparator10);
 
         btnImprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/imprimir.png"))); // NOI18N
@@ -1061,6 +1234,21 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             }
         });
         jToolBar1.add(btnImprimir);
+
+        btnReimprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/imprimir.png"))); // NOI18N
+        btnReimprimir.setText("Reimprimir");
+        btnReimprimir.setEnabled(false);
+        btnReimprimir.setFocusable(false);
+        btnReimprimir.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        btnReimprimir.setMaximumSize(new java.awt.Dimension(105, 51));
+        btnReimprimir.setMinimumSize(new java.awt.Dimension(105, 51));
+        btnReimprimir.setPreferredSize(new java.awt.Dimension(98, 51));
+        btnReimprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReimprimirActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(btnReimprimir);
 
         btnEditarFolsImpres.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/editFolios.png"))); // NOI18N
         btnEditarFolsImpres.setText("Editar folios impresos");
@@ -1089,7 +1277,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
 
         jLabel2.setText("Buscar en:");
 
-        cbxBuscarEn.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SISCERT", "SICEEB", "DUPLICADOS IMPRESOS" }));
+        cbxBuscarEn.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SISCERT", "SICEEB" }));
         cbxBuscarEn.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cbxBuscarEn_ItemStateChanged(evt);
@@ -1143,7 +1331,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(txtBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)))
                 .addGap(100, 100, 100))
             .addGroup(pnlBusquedaLayout.createSequentialGroup()
                 .addGroup(pnlBusquedaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1259,14 +1447,14 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrlpFoliosSICEEB, javax.swing.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
+                .addComponent(scrlpFoliosSICEEB, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrlpFoliosSICEEB, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(scrlpFoliosSICEEB, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1287,7 +1475,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                     .addGroup(pnlSINCELayout.createSequentialGroup()
                         .addComponent(scrlpSICEEB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 610, Short.MAX_VALUE))
                     .addGroup(pnlSINCELayout.createSequentialGroup()
                         .addComponent(btnImportar)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -1300,7 +1488,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                     .addGroup(pnlSINCELayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(scrlpSICEEB, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnImportar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -1373,7 +1561,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(txtSelFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel7))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 519, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         pnlSISCERTLayout.setVerticalGroup(
@@ -1395,7 +1583,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         jMenu1.setText("Archivo");
         jMenu1.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
 
-        smnuNuevo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        smnuNuevo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         smnuNuevo.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
         smnuNuevo.setText("Nuevo duplicado");
         smnuNuevo.addActionListener(new java.awt.event.ActionListener() {
@@ -1405,7 +1593,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         });
         jMenu1.add(smnuNuevo);
 
-        smnuImportar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_MASK));
+        smnuImportar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         smnuImportar.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
         smnuImportar.setText("Importar certificado");
         smnuImportar.addActionListener(new java.awt.event.ActionListener() {
@@ -1451,7 +1639,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         jMenu1.add(mnuImprimir);
         jMenu1.add(jSeparator5);
 
-        smnuSalir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        smnuSalir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         smnuSalir.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
         smnuSalir.setText("Salir");
         smnuSalir.addActionListener(new java.awt.event.ActionListener() {
@@ -1466,7 +1654,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         mnuEdicion.setText("Edición");
         mnuEdicion.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
 
-        smnuEditar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
+        smnuEditar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         smnuEditar.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
         smnuEditar.setText("Editar duplicado de certificado");
         smnuEditar.addActionListener(new java.awt.event.ActionListener() {
@@ -1487,7 +1675,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         mnuEdicion.add(smnuBorrar);
         mnuEdicion.add(jSeparator1);
 
-        smnuEditVariables.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        smnuEditVariables.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         smnuEditVariables.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
         smnuEditVariables.setText("Editar variables");
         smnuEditVariables.addActionListener(new java.awt.event.ActionListener() {
@@ -1511,7 +1699,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         mnuVer.setText("Ver");
         mnuVer.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
 
-        smnuReporte.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
+        smnuReporte.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         smnuReporte.setFont(new java.awt.Font("Microsoft Sans Serif", 0, 11)); // NOI18N
         smnuReporte.setText("Reporte");
         smnuReporte.addActionListener(new java.awt.event.ActionListener() {
@@ -1663,7 +1851,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(pnlSISCERT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(pnlBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 319, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(pnlBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pnlSINCE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -1991,14 +2179,29 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         }
     }//GEN-LAST:event_tblSISCERT_KeyPressed
 
+    private void btnReimprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReimprimirActionPerformed
+        try {
+            reimpresion ();
+        } catch (JRException ex) {
+            mensaje.General(this, "GENERAL", ""+ex, "");
+        }
+    }//GEN-LAST:event_btnReimprimirActionPerformed
+
+    private void btnCanceFolioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCanceFolioActionPerformed
+        // TODO add your handling code here:
+        cancelarFolio ();
+    }//GEN-LAST:event_btnCanceFolioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnCanceFolio;
     private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnEditarFolsImpres;
     private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnImportar;
     private javax.swing.JButton btnImprimir;
     private javax.swing.JButton btnNuevo;
+    private javax.swing.JButton btnReimprimir;
     private javax.swing.JComboBox<String> cbxBuscarEn;
     private javax.swing.JComboBox<String> cbxBuscarPor;
     private javax.swing.JComboBox<String> cbxCambiarCveunidad;

@@ -29,7 +29,7 @@ public class SISCERT_Reporte {
     private SISCERT_ReportManager reportManager;
             
     private String rutaReporte, nivelEstudios,nombreReporte;
-    private String nombreReportes[] = {"repPRIMARIA","repSECUNDARIA"};//,"repPREESCOLAR","certificacionSemielectronica"};
+    private String nombreReportes[] = {"repPRIMARIA","repSECUNDARIA","repPREESCOLAR","certificacionSemielectronico"};
     private String nivel [] = {"Primaria", "Secundaria"};//, "Preescolar"};
     private int cveplan;
     private boolean conectar;
@@ -68,6 +68,22 @@ public class SISCERT_Reporte {
         parametro.put("inicio",Integer.parseInt(i));
         parametro.put("fin",Integer.parseInt(f));
         parametro.put("cicescinilib",Integer.parseInt(cicinilib));
+        
+        reportManager.enviarAReporteador (parametro);
+        //reportManager.enviarAReporteador (parametro, rutaReporte,"Reporte de alumnos de nivel " + this.nivelEstudios,conexion.getConexion());
+        //reportManager.enviarAReporteador (parametro, nombreReportes[cveplan-1],"Reporte de alumnos de nivel " + this.nivelEstudios,null,"VER", true, false);
+        
+    }
+    
+    public void generarReporte (String idalu, String cicescinilib, String idfolimpre) throws  JRException, Exception
+    {
+         
+        reportManager = new SISCERT_ReportManager (rutaReporte+"Certificacion/", "certificacionSemielectronico_"+cicescinilib, nivelEstudios, true, true, true,tipoConexion);
+        //Pasamos parametros al reporte Jasper.
+        Map parametro = new HashMap();
+        parametro.put("idalu",idalu);
+        parametro.put("idfolimpre",idfolimpre);
+        parametro.put("cicescinilib",cicescinilib);
         
         reportManager.enviarAReporteador (parametro);
         //reportManager.enviarAReporteador (parametro, rutaReporte,"Reporte de alumnos de nivel " + this.nivelEstudios,conexion.getConexion());

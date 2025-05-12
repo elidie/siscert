@@ -103,6 +103,10 @@ public class SISCERT_Mensajes {
             JOptionPane.showMessageDialog(null, "El formato "+texto1+" no existe para este nivel.", "Precaución",JOptionPane.WARNING_MESSAGE);
         else if (tipo.equals("IMPORTACION_CINCONUEVE"))
             JOptionPane.showMessageDialog(null, "La importación del alumno no se puede llevar a cabo.", "Error",JOptionPane.ERROR_MESSAGE);
+        else if (tipo.equals("NO_CICLO"))
+            JOptionPane.showMessageDialog(null, "No se localizó formato digital para este libro", "Error",JOptionPane.ERROR_MESSAGE);
+        else if (tipo.equals("ALUMNO_CAPTURADO"))
+            JOptionPane.showMessageDialog(null, "El alumno ya se encuentra registrado en el sistema con: \n"+texto1+"\nConsultelo con el encargado del Área de Duplicados.", "Precaución",JOptionPane.WARNING_MESSAGE);  
         return false;
     }
     
@@ -208,6 +212,12 @@ public class SISCERT_Mensajes {
             JOptionPane.showMessageDialog(null,"El número de folio de certificado que desea ingresar\nya está asignado a CURP(s):"+texto1+".","Precaución",JOptionPane.WARNING_MESSAGE);
         else if (tipo.equals("CICLO_CLF>CLD"))
             JOptionPane.showMessageDialog(null,"El año en el que acredita el alumno no puede\nser mayor al libro de registro de duplicado (CLD).","Precaución",JOptionPane.WARNING_MESSAGE);
+        else if (tipo.equals("TIENE_FOLIOS"))
+            JOptionPane.showMessageDialog(null,"Al alumno ya se le asigno un o más folios: "+texto1+"\n.Comuniquese con el encargado del Area de Duplicados para más información.","Precaución",JOptionPane.WARNING_MESSAGE);
+        else if (tipo.equals("TIENE_FIRMA"))
+            JOptionPane.showMessageDialog(null,"El alumno ya tiene un duplicado vigente: "+texto1+"\nSi desea un formato actualizado o reimpresión del vigente, solicitelo con el encargado del Area de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);        
+        else if (tipo.equals("PENDIENTE_CANCE"))
+            JOptionPane.showMessageDialog(null,"La certificación del alumno sigue en procesos de cancelación. Consultelo con el encardo del Área de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);            
         return false;
     }
     
@@ -249,6 +259,12 @@ public class SISCERT_Mensajes {
             JOptionPane.showMessageDialog(null,"El número de folio de certificado que desea ingresar\nya está asignado a CURP(s):"+texto1+".","Precaución",JOptionPane.WARNING_MESSAGE);
         else if (tipo.equals("CICLO_CLF>CLD"))
             JOptionPane.showMessageDialog(null,"El año en el que acredita el alumno no puede\nser mayor al libro de registro de duplicado (CLD).","Precaución",JOptionPane.WARNING_MESSAGE);
+        else if (tipo.equals("TIENE_FOLIOS"))
+            JOptionPane.showMessageDialog(null,"Al alumno ya se le asigno un o más folios: "+texto1+"\n.Comuniquese con el encargado del Area de Duplicados para más información.","Precaución",JOptionPane.WARNING_MESSAGE);
+        else if (tipo.equals("TIENE_FIRMA"))
+            JOptionPane.showMessageDialog(null,"El alumno ya tiene un duplicado vigente: "+texto1+"\nSi desea un formato actualizado o reimpresión del vigente, solicitelo con el encargado del Area de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);        
+        else if (tipo.equals("PENDIENTE_CANCE"))
+            JOptionPane.showMessageDialog(null,"La certificación del alumno sigue en procesos de cancelación. Consultelo con el encardo del Área de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);            
         return false;
     }
     
@@ -298,7 +314,12 @@ public class SISCERT_Mensajes {
             JOptionPane.showMessageDialog(null, "La fecha "+texto1+" no es válida.", "Error",JOptionPane.ERROR_MESSAGE);
         else if(tipo.equals("FECHA_EXPED_Y_FECHA"))
             JOptionPane.showMessageDialog(null, "La fecha de expedición del lado anverso no coincide con la fecha del lado reverso.", "Error",JOptionPane.ERROR_MESSAGE);
-        
+        else if (tipo.equals("TIENE_FOLIOS"))
+            JOptionPane.showMessageDialog(null,"Al alumno ya se le asigno un o más folios: "+texto1+"\n.Comuniquese con el encargado del Área de Duplicados para más información.","Precaución",JOptionPane.WARNING_MESSAGE);
+        else if (tipo.equals("TIENE_FIRMA"))
+            JOptionPane.showMessageDialog(null,"El alumno ya tiene un duplicado vigente: "+texto1+"\nSi desea un formato actualizado o reimpresión del vigente, solicitelo con el encargado del Área de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);    
+        else if (tipo.equals("PENDIENTE_CANCE"))
+            JOptionPane.showMessageDialog(null,"La certificación del alumno sigue en procesos de cancelación. Consultelo con el encardo del Área de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);        
         return false;
     }
     

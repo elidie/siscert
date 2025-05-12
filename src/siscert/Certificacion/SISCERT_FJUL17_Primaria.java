@@ -119,6 +119,8 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
     {
         boolean guardado = false, hacerCommit=false;
         String datEscu[], fechaExpedicion, dictamen;
+        String estatus_cance = "";
+        Map datos = new HashMap(); 
         
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
         if (validarEntradas())
@@ -133,12 +135,25 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
                     fechaExpedicion = global.convertirTextoAFecha(""+cbxDiaExpedicion.getSelectedItem(),""+cbxMesExpedicion.getSelectedItem(),lblAnioExpedicion.getText().toLowerCase().replace("del ", ""));
                     dictamen = "";//Revision--> txtDictamenNumero.getText().trim().equals("")?"":"DICTAMEN/"+txtDictamenNumero.getText().trim()+"-"+txtDictamenFecha.getText().trim();
                     
-                    conexion.guardarAlumnoPrim(idAluSICEEB, global.NoControl, casoLlamada, (""+cbxCicloCLD.getSelectedItem()).substring(0,4), global, txtNombre.getText(),
-                            txtApePaterno.getText(),txtApeMaterno.getText(), idsCasocurp.get(cbxCasocurp.getSelectedIndex()), txtCurp.getText(), bkuCurp,false/*chkEsCEBAS.isSelected()*/,
-                            ""/*(chkEsCEBAS.isSelected()?""+cbxDiaCEBAS.getSelectedItem():"")*/, ""+cbxMesAcreditacion.getSelectedItem(),"",txtAnioAcreditacion.getText(), getFechaLetCEBAS (), 
-                            getPromedioNum (), lblPromedioLetra.getText(), fechaExpedicion,txtLibro.getText(),txtFoja.getText(),txtFolio.getText(),getFolio(),datEscu[0],datEscu[1],
-                            datEscu[2], datEscu[3], datEscu[4],datEscu[5],dictamen,global.lugaresValidacion.get(0/*cbxLugarValidacion.getSelectedIndex()*/)[0], false/*chkActualizarVars.isSelected()*/, 
-                            this.idFormatoCert, ""+cbxTipoNumsolicitud.getSelectedItem(), txtNumSolicitud.getText().trim(),cambioEnCurpONombre, cveUnidad59);
+                    //Verificar si ya tiene asignado un folio sin ningun cambio en sus datos personales                     
+                    
+                    datos = conexion.verificarFolioExistente(idAluSICEEB, "1");
+                    estatus_cance = conexion.verificarEnCancelados(idAluSICEEB, "1");
+                    if(datos.get("strFirma").toString().isEmpty() && datos.get("strFolios").toString().isEmpty() &&
+                        (estatus_cance.isEmpty() || 
+                            (!estatus_cance.equals("100") && !estatus_cance.equals("99") && !estatus_cance.equals("1"))))
+                        conexion.guardarAlumnoPrim(idAluSICEEB, global.NoControl, casoLlamada, (""+cbxCicloCLD.getSelectedItem()).substring(0,4), global, txtNombre.getText(),
+                                txtApePaterno.getText(),txtApeMaterno.getText(), idsCasocurp.get(cbxCasocurp.getSelectedIndex()), txtCurp.getText(), bkuCurp,false/*chkEsCEBAS.isSelected()*/,
+                                ""/*(chkEsCEBAS.isSelected()?""+cbxDiaCEBAS.getSelectedItem():"")*/, ""+cbxMesAcreditacion.getSelectedItem(),"",txtAnioAcreditacion.getText(), getFechaLetCEBAS (), 
+                                getPromedioNum (), lblPromedioLetra.getText(), fechaExpedicion,txtLibro.getText(),txtFoja.getText(),txtFolio.getText(),getFolio(),datEscu[0],datEscu[1],
+                                datEscu[2], datEscu[3], datEscu[4],datEscu[5],dictamen,global.lugaresValidacion.get(0/*cbxLugarValidacion.getSelectedIndex()*/)[0], false/*chkActualizarVars.isSelected()*/, 
+                                this.idFormatoCert, ""+cbxTipoNumsolicitud.getSelectedItem(), txtNumSolicitud.getText().trim(),cambioEnCurpONombre, cveUnidad59);
+                    else if(!datos.get("strFirma").toString().isEmpty()) 
+                        throw new Exception ("TIENE_FIRMA"); 
+                    else if(!datos.get("strFolios").toString().isEmpty())
+                        throw new Exception ("TIENE_FOLIOS"); 
+                    else if(estatus_cance.equals("100") || estatus_cance.equals("99") || estatus_cance.equals("1"))
+                            throw new Exception ("PENDIENTE_CANCE");                             
                     
                     bkuCurp = txtCurp.getText().trim();                           //Respaldamos el texto del campo curp, por si el usuario cambia la curp, en la consulta que hagamos ya no nos afecte
                     cbxTipoNumsolicitud.setSelectedItem("Actual");
@@ -148,20 +163,26 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
                     if (actualizarTblSISCERT && buscarEnSISCERTSelect && this.posSelTblSISCERT!=-1)
                         actualizartblSISCERT ();                                    //Para actualizar la tabla de búsqueda SISCERT
                     guardado = true;
-                    hacerCommit = true;
+                    hacerCommit = true;  //Comentado 27-02-2025
                 }else
                     mensaje.General(this,"CONEXION", "","");
             }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
             catch (Exception ex){ 
                 if (ex.getMessage().contains("ALUMAT_CVEPROGRAMA"))
                     mensaje.Primaria("ALUMAT_CVEPROGRAMA", "", "");
+                else if (ex.getMessage().contains("TIENE_FIRMA"))
+                    mensaje.Primaria("TIENE_FIRMA",datos.get("strFirma").toString(), "");
+                else if (ex.getMessage().contains("TIENE_FOLIOS"))
+                    mensaje.Primaria("TIENE_FOLIOS",datos.get("strFolios").toString(), "");
+                else if (ex.getMessage().contains("PENDIENTE_CANCE"))
+                    mensaje.Primaria("PENDIENTE_CANCE","", "");
                 else if (ex.getMessage().contains("ALU_EN_SICCEB")){
                     if (casoLlamada.equals("Editar") && idAluSICEEB.equals(""))
                         mensaje.ModuloCertificacion(this,"LIGAR_CURP_CON_IDALU", txtCurp.getText(), "");
                     else
                         mensaje.Primaria("ALU_EN_SICCEB", "", "");
                 }else if (ex.getMessage().contains("CERTIDUP_EXISTENTE"))
-                    mensaje.Secundaria("CERTIDUP_EXISTENTE", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
+                    mensaje.Primaria("CERTIDUP_EXISTENTE", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
                 else if (ex.getMessage().contains("NUMSOLICITUD_EXISTENTE"))
                     mensaje.ModuloCertificacion(this,"NUMSOLICITUD_EXISTENTE", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
                 else if (ex.getMessage().contains("FOLIO_EN_FOLIOSIMPRE"))
@@ -196,7 +217,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
         try {
             conexion.conectar();                         //Conectamos
-            rs = conexion.selecAnvRevParaEditar (global.NoControl, global.curp, global.cveplan, global.cveunidad);
+            rs = conexion.selecAnvRevParaEditar (global.NoControl, global.curp, global.cveplan, global.cveunidad,global.verUnidades);
             rs.next();
                     //************** Cargamos los datos del alumno **************
             bkuDelegacion = rs.getString("delegacion").trim();
@@ -818,7 +839,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         String v[];
         
         //Clasificamos por id-descripción
-        for (int i=0; i<ides.length; i++){
+        for (int i=0; i<ides.length; i++) {
             idscctDefault.put(ides[i][0], ides[i][1]);
             cbxEscuelaDe.addItem(ides[i][1]);
         }
@@ -826,7 +847,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         for (int i=0; i<ides.length; i++)
             idscctDefault.put(ides[i][1], ides[i][0]);
         //Clasificamos por modalidad-descripción
-        for (int i=0; i<ides.length; i++){
+        for (int i=0; i<ides.length; i++) {
             v=ides[i][2].split(","); 
             for (int j=0; j<v.length; j++)
                 idscctDefault.put(v[j], ides[i][1]);
@@ -907,13 +928,13 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
-        cbxFormatosFolio = new javax.swing.JComboBox<String>();
+        cbxFormatosFolio = new javax.swing.JComboBox<>();
         jLabel20 = new javax.swing.JLabel();
         txtFolio = new javax.swing.JTextField();
-        cbxCicloCLD = new javax.swing.JComboBox<String>();
+        cbxCicloCLD = new javax.swing.JComboBox<>();
         jPanel4 = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
-        cbxTipoNumsolicitud = new javax.swing.JComboBox<String>();
+        cbxTipoNumsolicitud = new javax.swing.JComboBox<>();
         txtNumSolicitud = new javax.swing.JTextField();
         jLabel22 = new javax.swing.JLabel();
         lblNoControl = new javax.swing.JLabel();
@@ -934,9 +955,9 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         txtCurp = new javax.swing.JTextField();
-        cbxCasocurp = new javax.swing.JComboBox<String>();
+        cbxCasocurp = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
-        cbxMesAcreditacion = new javax.swing.JComboBox<String>();
+        cbxMesAcreditacion = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
         txtAnioAcreditacion = new javax.swing.JTextField();
         jPanel5 = new javax.swing.JPanel();
@@ -945,21 +966,21 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         jLabel9 = new javax.swing.JLabel();
         rbnEscuelaActual = new javax.swing.JRadioButton();
         rbnEscuelaHistorica = new javax.swing.JRadioButton();
-        cbxHEscuela = new javax.swing.JComboBox<String>();
-        cbxEscuela = new javax.swing.JComboBox<String>();
+        cbxHEscuela = new javax.swing.JComboBox<>();
+        cbxEscuela = new javax.swing.JComboBox<>();
         btnBuscarNombreEscuela = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
-        cbxCCTEscuela = new javax.swing.JComboBox<String>();
+        cbxCCTEscuela = new javax.swing.JComboBox<>();
         btnBuscarCCTEscuela = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
-        cbxEscuelaDe = new javax.swing.JComboBox<String>();
+        cbxEscuelaDe = new javax.swing.JComboBox<>();
         jLabel12 = new javax.swing.JLabel();
         txtPromedioNum = new javax.swing.JTextField();
         lblPromedioLetra = new javax.swing.JLabel();
         lblALos = new javax.swing.JLabel();
-        cbxDiaExpedicion = new javax.swing.JComboBox<String>();
+        cbxDiaExpedicion = new javax.swing.JComboBox<>();
         lblDiasDelMes = new javax.swing.JLabel();
-        cbxMesExpedicion = new javax.swing.JComboBox<String>();
+        cbxMesExpedicion = new javax.swing.JComboBox<>();
         lblAnioExpedicion = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
@@ -1054,7 +1075,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
 
         jLabel21.setText("Num. solicitud");
 
-        cbxTipoNumsolicitud.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Nuevo", "Manual", "Actual" }));
+        cbxTipoNumsolicitud.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nuevo", "Manual", "Actual" }));
         cbxTipoNumsolicitud.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cbxTipoNumsolicitud_ItemStateChanged(evt);
@@ -1220,7 +1241,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
 
         jLabel7.setText("Cursó y acreditó la Educación Primaria en:");
 
-        cbxMesAcreditacion.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre" }));
+        cbxMesAcreditacion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre" }));
         cbxMesAcreditacion.setPreferredSize(new java.awt.Dimension(86, 20));
         cbxMesAcreditacion.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1391,7 +1412,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
 
         lblALos.setText("A los");
 
-        cbxDiaExpedicion.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "primer", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiún", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve", "treinta", "treinta y un" }));
+        cbxDiaExpedicion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "primer", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiún", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve", "treinta", "treinta y un" }));
         cbxDiaExpedicion.setPreferredSize(new java.awt.Dimension(100, 20));
         cbxDiaExpedicion.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1401,7 +1422,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
 
         lblDiasDelMes.setText("días del mes de");
 
-        cbxMesExpedicion.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre" }));
+        cbxMesExpedicion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre" }));
         cbxMesExpedicion.setPreferredSize(new java.awt.Dimension(86, 20));
         cbxMesExpedicion.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1542,7 +1563,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 797, Short.MAX_VALUE)
+            .addGap(0, 981, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1594,7 +1615,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
             .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 802, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 986, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1602,7 +1623,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 537, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

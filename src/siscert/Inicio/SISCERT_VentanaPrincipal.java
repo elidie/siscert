@@ -314,7 +314,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                             conexion.conectar();
                             conexion.cancelarFolio (global.idfolimpre, global.idAluSICEEB,global.cicescinilib, global.cveplan, global.capturista);  //Borramos al alumno de la base de datos
                             modelFolImpre.removeRow(tblSISCERT.getSelectedRow());
-                        }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
+                        } catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
                         catch (Exception ex){ 
                             /*if (ex.getMessage().contains("CANCELAR_PARA_BORRAR"))
                                 mensaje.ventanaPrincipal("CANCELAR_PARA_BORRAR", ex.getMessage().substring(ex.getMessage().indexOf("*")+1), "");
@@ -637,7 +637,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
     {
         String buscarPor;
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));         //Cambiamos la forma del puntero a reloj de arena
-        
+        int registros = 0;
         try {
             buscarPor=verifFormatosBuscarPor ();                                //Extraemos el tipo de búsqueda
             conexion.conectar();
@@ -649,7 +649,9 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             modelFolImpre.setScrollHorizontal(tblSISCERT, scrlpSISCERT);
             //Quitar--> btnImprimir.setEnabled(false);
             //Quitar--> smnuImprimir_Certificado.setEnabled(false);
-            conexion.selecDuplicadosImpresosFiltro(modelFolImpre, txtBuscar.getText().trim(),buscarPor,global.cveunidad,global.cveplan, global.capturista, global.verUnidades); //Hacemos la consulta
+            registros = conexion.selecDuplicadosImpresosFiltro(modelFolImpre, txtBuscar.getText().trim(),buscarPor,global.cveunidad,global.cveplan, global.capturista, global.verUnidades, 1); //Hacemos la consulta
+            if(registros==0)
+                conexion.selecDuplicadosImpresosFiltro(modelFolImpre, txtBuscar.getText().trim(),buscarPor,global.cveunidad,global.cveplan, global.capturista, global.verUnidades, 2); //Hacemos la consulta
         }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
         catch (Exception ex){ 
             if (ex.getMessage().contains("NO_CONTROL_ERRONEO") || ex.getMessage().contains("FORMAT_BUSQNOM") || ex.getMessage().contains("FALTACURP_BUSQNOM") || ex.getMessage().contains("FORMAT_BUSQFOL") || ex.getMessage().contains("FORMAT_BUSQSOLI")){

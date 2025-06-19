@@ -61,7 +61,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
         
         
         //---------------- CONFIGURAMOS LAS TABLAS DE FOLIOS IMPRESOS  ------------------
-        modelFolImpre = new SISCERT_ModeloDeTabla(new String [] {"idfolimpre", "idalu", "Num. Solicitud","cicescinilib","foliolet", "folionum","nombre", "primerape", "segundoape", "curp", "cicescini", "cicescfin", "prom_educprim", "promedio", "prom_educbasic", "libro", "foja", "folio", "escuela", "cct", "fecha", "estatus_impre", "fechainsert","usuario","fechatimbradoieepo","foliodigital"});
+        modelFolImpre = new SISCERT_ModeloDeTabla(new String [] {"idfolimpre", "idalu", "Num. Solicitud","cicescinilib","foliolet", "folionum","nombre", "primerape", "segundoape", "curp", "cicescini", "prom_educprim", "promedio", "prom_educbasic", "folio", "cct", "fecha", "fechainsert","usuario","fechatimbradoieepo","foliodigital"});
         //---------------- CONFIGURAMOS LAS TABLAS DE ALUMNOS SISCERT  ------------------
         modelSISCERT = new SISCERT_ModeloDeTabla(new String [] {"N.P.","No. CONTROL", "NUM. SOL.", "foja","FOLIOS PARA EL LIBRO", "idAlu","NOMBRE", "PRIMER APELLIDO", "SEGUNDO APELLIDO", "CURP", "TIPO EDUC","FORMATO IMPRESIÓN","FOLIO"},new String [] {"idcertificacion"});
         modelSISCERT.setAlias(new String [][]{{"np","0"},{"numCtrl","1"},{"numSol","2"},{"foja","3"},{"cicescinilib","4"},{"idalu","5"},{"nombre","6"},{"primerApe","7"},{"segundoApe","8"},{"curp","9"},{"tipoEduc","10"},{"formatoImp","11"},{"folio","12"}}, new String [][]{{"idcertificacion","0"}});
@@ -295,6 +295,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
     }
     
     public void cancelarFolio() {
+        boolean hacercommit = false;
         if (btnCanceFolio.isVisible())                                            //Por cuestiones de permisos
         {
             if (!(tbtnPreescolar.isSelected() || tbtnPrimaria.isSelected() || tbtnSecundaria.isSelected()))
@@ -311,9 +312,10 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                         
                         try {
                             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); //Cambiamos la forma del puntero a reloj de arena
-                            conexion.conectar();
+                            conexion.conectarConTransaccion();
                             conexion.cancelarFolio (global.idfolimpre, global.idAluSICEEB,global.cicescinilib, global.cveplan, global.capturista);  //Borramos al alumno de la base de datos
                             modelFolImpre.removeRow(tblSISCERT.getSelectedRow());
+                            hacercommit = true;
                         } catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }
                         catch (Exception ex){ 
                             /*if (ex.getMessage().contains("CANCELAR_PARA_BORRAR"))
@@ -321,7 +323,8 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
                             else*/ 
                             mensaje.General(this,"GENERAL", ex.getMessage(), ""); 
                         }finally{ this.setCursor(Cursor.getDefaultCursor()); }
-                        try { conexion.cerrarConexion(); } catch (SQLException ex) { }
+                        try {
+                            conexion.cerrarConexionConTransaccion(hacercommit); } catch (SQLException ex) { }
                         break;
                     case JOptionPane.NO_OPTION: break;
                 }
@@ -995,6 +998,7 @@ public class SISCERT_VentanaPrincipal extends javax.swing.JFrame
             habilitar = false;
             imprimir=false;
         }else if (cbxBuscarEn.getSelectedItem().equals("DUPLICADOS IMPRESOS")){
+            cbxBuscarPor.addItem("idAlu");
             cbxBuscarPor.addItem("CURP");
             cbxBuscarPor.addItem("Nombre");
             cbxBuscarPor.addItem("Folio(s)");

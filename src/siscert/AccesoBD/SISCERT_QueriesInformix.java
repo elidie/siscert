@@ -210,7 +210,9 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
         Object []fila;
         int numColumnas=modelSISCERT.getColumnCount(), registros=0;
         
-        if (caso.equals("CURP"))
+        if (caso.equals("CONTROL"))
+            atributoABuscar = "fi.idalu ="+filtro.trim();
+        else if (caso.equals("CURP"))
             atributoABuscar = "curp LIKE '"+filtro.toUpperCase()+"%'";
         else if (caso.equals("NOMBRE")){
             atributoABuscar=formatSeekToSubquery (filtro).replace("apepat", "primerape").replace("apemat", "segundoape");
@@ -232,8 +234,8 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             filtroUnidad = " AND cveunidad ='"+cveUnidad+"' ";
         if(numLlamada==1)
             rs=stm.executeQuery("SELECT  fi.idfolimpre, fi.idalu, fi.numsolicitud, fi.cicescinilib, fi.foliolet, fi.folionum, " +
-                        "fi.nombre, fi.primerape, fi.segundoape, fi.curp, fi.cicescini, fi.cicescfin, fi.prom_educprim, fi.promedio, " +
-                        "fi.prom_educbasic, fi.libro, fi.foja, fi.folio, fi.escuela, fi.cct, fi.fecha, fi.estatus_impre, fi.fechainsert, " +
+                        "fi.nombre, fi.primerape, fi.segundoape, fi.curp, fi.cicescini, fi.prom_educprim, fi.promedio, " +
+                        "fi.prom_educbasic, fi.folio, fi.cct, fi.fecha, fi.fechainsert, " +
                         "fi.usuario, fe.fechatimbradoieepo, fe.foliodigital " +
                         "FROM siscert_folimpre fi INNER JOIN siscert_firmaelec fe " +
                             "ON (fi.idalu = fe.idalu AND fi.idfolimpre = fe.idfolimpre AND fi.folionum = fe.folionum AND fi.cicescinilib = fe.cicescinilib) " +
@@ -241,9 +243,9 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "AND estatus_firma=100 AND foliodigital is not null " +        
                         "ORDER BY fi.idformato, fi.cicescini, fi.numsolicitud");        
         else
-            rs=stm.executeQuery("SELECT  fi.idfolimpre, fi.idalu, fi.numsolicitud, fi.cicescinilib, fi.foliolet, fi.folionum, " +
+            rs=stm.executeQuery("SELECT  fi.idfolimpre, fi.idalu, fi.numsolicitud, fi.foliolet, fi.folionum, " +
                         "fi.nombre, fi.primerape, fi.segundoape, fi.curp, fi.cicescini, fi.cicescfin, fi.prom_educprim, fi.promedio, " +
-                        "fi.prom_educbasic, fi.libro, fi.foja, fi.folio, fi.escuela, fi.cct, fi.fecha, fi.estatus_impre, fi.fechainsert, " +
+                        "fi.prom_educbasic, fi.folio, fi.cct, fi.fecha, fi.fechainsert, " +
                         "fi.usuario, '' AS fechatimbradoieepo, '' AS foliodigital " +
                         "FROM siscert_folimpre fi LEFT JOIN siscert_firmaelec fe " +
                             "ON (fi.idalu = fe.idalu AND fi.idfolimpre = fe.idfolimpre AND fi.folionum = fe.folionum AND fi.cicescinilib = fe.cicescinilib " +
@@ -400,7 +402,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     stm.execute("DELETE FROM siscert_firmaelec "
                             + " WHERE idalu="+idalu+" AND cicescinilib="+cicescinilib 
                             + " AND idfolimpre = "+idfolimpre+" "
-                            + " AND foliodigital is not null AND estatus_firma=100" ); 
+                            + " AND foliodigital is not null AND estatus_firma=100" );                                         
                     
                     stm.execute("INSERT INTO siscert_folimpre_cance (idfolimpre,idcertificacion,idalu,idfolim_var,foliolet,folionum,cveunidad,"
                         + "cveplan,numsolicitud,cicescinilib,cebas,nombre,"
@@ -421,6 +423,10 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                     stm.execute("DELETE FROM siscert_folimpre "
                             + " WHERE cveplan="+cveplan+" AND idalu="+idalu+" AND cicescinilib="+cicescinilib 
                             + " AND idfolimpre = "+idfolimpre+" "); 
+                    
+                    stm.execute(" UPDATE siscert_certificacion SET juridico='' "
+                            + " WHERE cveplan = " + cveplan + " AND idalu = " + idalu 
+                            + " AND cicescinilib="+cicescinilib + " AND juridico='VERIFICADO' ");
                                         
                     resultado=true;
             } catch(SQLException ex){
@@ -2864,14 +2870,15 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
       
         if(!idAluSICEEB.isEmpty()) {
             rs = stm.executeQuery("SELECT fo.cicescinilib,fo.numsolicitud, fo.folionum, fo.juridico, " 
-                + "NVL((SELECT foliodigital FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre),'') as foliodigital, " 
-                + "(SELECT fechatimbradosep FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre) as fecha_timbrado, " 
-                + "(SELECT estatus_firma FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre) as estatus_firma " 
-                + "FROM siscert_certificacion c, siscert_folimpre fo " 
-                + "WHERE c.idalu = fo.idalu " 
-                + "AND c.idcertificacion = fo.idcertificacion " 
-                + "AND c.idalu = " + idAluSICEEB +" "
-                + "AND c.cveplan=" + cveplan    
+                + " NVL((SELECT foliodigital FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre),'') as foliodigital, " 
+                + " (SELECT fechatimbradosep FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre) as fecha_timbrado, " 
+                + " (SELECT estatus_firma FROM siscert_firmaelec WHERE idalu = fo.idalu AND idfolimpre=fo.idfolimpre) as estatus_firma " 
+                + " FROM siscert_certificacion c, siscert_folimpre fo " 
+                + " WHERE c.idalu = fo.idalu " 
+                + " AND c.idcertificacion = fo.idcertificacion " 
+                + " AND c.idalu = " + idAluSICEEB +" "
+                + " AND c.cveplan=" + cveplan   
+                + " AND fo.cicescinilib >= 2017 "    
             );
 
             while (rs.next()) {            

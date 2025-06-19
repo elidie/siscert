@@ -260,7 +260,7 @@ public class SISCERT_Mensajes {
         else if (tipo.equals("CICLO_CLF>CLD"))
             JOptionPane.showMessageDialog(null,"El año en el que acredita el alumno no puede\nser mayor al libro de registro de duplicado (CLD).","Precaución",JOptionPane.WARNING_MESSAGE);
         else if (tipo.equals("TIENE_FOLIOS"))
-            JOptionPane.showMessageDialog(null,"Al alumno ya se le asigno un o más folios: "+texto1+"\n.Comuniquese con el encargado del Area de Duplicados para más información.","Precaución",JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null,"Al alumno ya se le asigno uno o más folios: "+texto1+"\n.Comuniquese con el encargado del Area de Duplicados para más información.","Precaución",JOptionPane.WARNING_MESSAGE);
         else if (tipo.equals("TIENE_FIRMA"))
             JOptionPane.showMessageDialog(null,"El alumno ya tiene un duplicado vigente: "+texto1+"\nSi desea un formato actualizado o reimpresión del vigente, solicitelo con el encargado del Area de Duplicados.","Precaución",JOptionPane.WARNING_MESSAGE);        
         else if (tipo.equals("PENDIENTE_CANCE"))

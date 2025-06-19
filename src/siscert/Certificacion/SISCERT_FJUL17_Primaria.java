@@ -135,13 +135,12 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
                     fechaExpedicion = global.convertirTextoAFecha(""+cbxDiaExpedicion.getSelectedItem(),""+cbxMesExpedicion.getSelectedItem(),lblAnioExpedicion.getText().toLowerCase().replace("del ", ""));
                     dictamen = "";//Revision--> txtDictamenNumero.getText().trim().equals("")?"":"DICTAMEN/"+txtDictamenNumero.getText().trim()+"-"+txtDictamenFecha.getText().trim();
                     
-                    //Verificar si ya tiene asignado un folio sin ningun cambio en sus datos personales                     
-                    
+                    //Verificar si ya tiene asignado un folio sin ningun cambio en sus datos personales                                         
                     datos = conexion.verificarFolioExistente(idAluSICEEB, "1");
                     estatus_cance = conexion.verificarEnCancelados(idAluSICEEB, "1");
                     if(datos.get("strFirma").toString().isEmpty() && datos.get("strFolios").toString().isEmpty() &&
                         (estatus_cance.isEmpty() || 
-                            (!estatus_cance.equals("100") && !estatus_cance.equals("99") && !estatus_cance.equals("1"))))
+                            (!estatus_cance.equals("100") && !estatus_cance.equals("99"))))
                         conexion.guardarAlumnoPrim(idAluSICEEB, global.NoControl, casoLlamada, (""+cbxCicloCLD.getSelectedItem()).substring(0,4), global, txtNombre.getText(),
                                 txtApePaterno.getText(),txtApeMaterno.getText(), idsCasocurp.get(cbxCasocurp.getSelectedIndex()), txtCurp.getText(), bkuCurp,false/*chkEsCEBAS.isSelected()*/,
                                 ""/*(chkEsCEBAS.isSelected()?""+cbxDiaCEBAS.getSelectedItem():"")*/, ""+cbxMesAcreditacion.getSelectedItem(),"",txtAnioAcreditacion.getText(), getFechaLetCEBAS (), 

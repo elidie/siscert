@@ -170,7 +170,7 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
                         throw new Exception ("TIENE_FIRMA"); 
                     else if(!datos.get("strFolios").toString().isEmpty())
                         throw new Exception ("TIENE_FOLIOS"); 
-                    else if(estatus_cance.equals("100") || estatus_cance.equals("99") || estatus_cance.equals("1"))
+                    else if(estatus_cance.equals("100") || estatus_cance.equals("99"))
                         throw new Exception ("PENDIENTE_CANCE");  
                     
                     bkuCurp = txtCurp.getText().trim();                           //Respaldamos el texto del campo curp, por si el usuario cambia la curp en la consulta que hagamos ya no nos afecte
@@ -181,7 +181,7 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
                     if (actualizarTblSISCERT && buscarEnSISCERTSelect && this.posSelTblSISCERT!=-1)
                         actualizartblSISCERT ();                                    //Para actualizar la tabla de búsqueda SISCERT
                     guardado = true;
-                    //hacerCommit = true; //comentado 14-05-2025
+                    hacerCommit = true; //comentado 14-05-2025
                 } else
                     mensaje.General(this,"CONEXION", "","");
             }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }

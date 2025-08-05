@@ -424,7 +424,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                             + " WHERE cveplan="+cveplan+" AND idalu="+idalu+" AND cicescinilib="+cicescinilib 
                             + " AND idfolimpre = "+idfolimpre+" "); 
                     
-                    stm.execute(" UPDATE siscert_certificacion SET juridico='' "
+                    stm.execute(" UPDATE siscert_certificacion SET juridico='CANCELADO' "
                             + " WHERE cveplan = " + cveplan + " AND idalu = " + idalu 
                             + " AND cicescinilib="+cicescinilib + " AND juridico='VERIFICADO' ");
                                         
@@ -809,19 +809,19 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "tablaescuela='"+tablaEscuela+"', " +
                         "escuela="+escuela_str+", " +
                         "cct='"+cctEscuela.trim().toUpperCase()+"', " +
+                        "cveunidad = '"+global.cveunidad.trim().toUpperCase()+"', " +
                         "fecha='"+fecha+"', " +
                         "juridico='"+juridico.trim().toUpperCase()+"', " +
-                        "idleyenda_lugvalid="+idleyenda_lugarValidacion+", "+
-                        "idformato="+idFormatoCert+", "+
-                        "usuario='"+global.capturista+"', "+
-                        "fechaupdate=extend(current, year to second) "+//date(current)
+                        "idleyenda_lugvalid="+idleyenda_lugarValidacion+", " +
+                        "idformato="+idFormatoCert+", " +
+                        "usuario='"+global.capturista+"', " +
+                        "fechaupdate=extend(current, year to second) " +//date(current)
                         temp +
                         " WHERE idcertiregion='"+NoControl+"' AND curp='"+respaldoCurp.toUpperCase()+"' AND cveplan = '"+global.cveplan+"' "+
-                        ((global.cveunidad.equals("DSRVAL") && cveUnidad59.equals("CINCO9")) ? " AND cveunidad='CINCO9' " : " AND cveunidad='"+global.cveunidad+"'") ); 
-            }
-            
+                        ((global.cveunidad.equals("DSRVAL") && !cveUnidad59.equals("DSRVAL") && global.verUnidades==true) ? " AND cveunidad='"+cveUnidad59+"' " : " AND cveunidad='"+global.cveunidad+"'") ); 
+            }            
             global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControl+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveunidad+"'");
-        }catch (SQLException ex){ 
+        } catch (SQLException ex){ 
             if (ex.getMessage().toUpperCase().contains("UNIQUE") && ex.getMessage().toUpperCase().contains("UK_CURPNOMREG")) 
                 throw new Exception("CERTIDUP_EXISTENTE*"+verifAlumnoDuplicado (curp, ""+global.cveplan,global.cveunidad));
             else if (ex.getMessage().toUpperCase().contains("UNIQUE") && ex.getMessage().toUpperCase().contains("UK_NUMSOLICITUD")) 
@@ -977,7 +977,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "fechaupdate=extend(current, year to second) "+//date(current)
                         temp +
                         " WHERE idcertiregion='"+NoControl+"' AND curp='"+respaldoCurp.toUpperCase()+"' AND cveplan = " + global.cveplan  +
-                        ((global.cveunidad.equals("DSRVAL") && cveUnidad59.equals("CINCO9")) ? " AND cveunidad='CINCO9' " : " AND cveunidad='"+global.cveunidad+"'") );                        
+                        ((global.cveunidad.equals("DSRVAL") && !cveUnidad59.equals("DSRVAL") && global.verUnidades==true) ? " AND cveunidad='"+cveUnidad59+"' " : " AND cveunidad='"+global.cveunidad+"'") );                                                 
             }
             
             global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControl+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveunidad+"'");

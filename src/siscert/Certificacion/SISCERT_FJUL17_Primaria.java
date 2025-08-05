@@ -228,6 +228,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
             txtCurp.setText(rs.getString("curp").trim());
             bkuCurp = txtCurp.getText();                                   //Respaldamos la curp para usarla en el UPDATE
             cveUnidad59 = rs.getString("cveunidad").trim();
+            global.cveUnidad59 = cveUnidad59;
             /*Revision--> if (rs.getBoolean("cebas"))
             {
                 chkEsCEBAS.setSelected(true);
@@ -988,9 +989,13 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         btnGuardar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(998, 650));
+        setResizable(false);
 
-        jPanel1.setMaximumSize(new java.awt.Dimension(819, 563));
-        jPanel1.setPreferredSize(new java.awt.Dimension(819, 563));
+        jTabbedPane1.setPreferredSize(new java.awt.Dimension(981, 592));
+
+        jPanel1.setMaximumSize(new java.awt.Dimension(819, 590));
+        jPanel1.setPreferredSize(new java.awt.Dimension(819, 590));
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos del folio"));
 
@@ -1566,12 +1571,11 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 509, Short.MAX_VALUE)
+            .addGap(0, 529, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Variables", jPanel2);
 
-        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
         btnSalir.setText("Salir");
@@ -1622,8 +1626,8 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 537, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 560, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();

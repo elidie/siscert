@@ -38,7 +38,7 @@ public class SISCERT_Reporte {
 
     public SISCERT_Reporte (int cveplan, SISCERT_QueriesInformix conexion, String tipoConexion) throws SQLException
     {
-        String nivel [] = {"Primaria", "Secundaria"};//, "Preescolar"};
+        String nivel [] = {"Primaria", "Secundaria","Preescolar"};//, "Preescolar"};
 
         this.conexion = conexion;        
         this.cveplan = cveplan;

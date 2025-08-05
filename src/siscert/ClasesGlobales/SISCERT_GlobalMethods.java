@@ -34,7 +34,7 @@ public class SISCERT_GlobalMethods  {
     public String idleyenda_lugvalid, lugarValidacion;
     public ArrayList<String[]> lugaresValidacion = new ArrayList<String[]>();
 
-    public String cveunidad, tipoConexion, idformato;
+    public String cveunidad, tipoConexion, idformato, cveUnidad59;
     public int cveplan, idFormatCertAImprimir;
     public String idcapturista, capturista;
     

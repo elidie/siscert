@@ -162,7 +162,7 @@ public class SISCERT_FJUL17_Primaria extends javax.swing.JDialog {
                     if (actualizarTblSISCERT && buscarEnSISCERTSelect && this.posSelTblSISCERT!=-1)
                         actualizartblSISCERT ();                                    //Para actualizar la tabla de búsqueda SISCERT
                     guardado = true;
-                    hacerCommit = true;  //Comentado 27-02-2025
+                    hacerCommit = true;  //Comentado 08-08-2025
                 }else
                     mensaje.General(this,"CONEXION", "","");
             }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }

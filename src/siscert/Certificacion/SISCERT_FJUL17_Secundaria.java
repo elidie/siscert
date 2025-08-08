@@ -181,7 +181,7 @@ public class SISCERT_FJUL17_Secundaria extends javax.swing.JDialog {
                     if (actualizarTblSISCERT && buscarEnSISCERTSelect && this.posSelTblSISCERT!=-1)
                         actualizartblSISCERT ();                                    //Para actualizar la tabla de búsqueda SISCERT
                     guardado = true;
-                    hacerCommit = true; //comentado 14-05-2025
+                    hacerCommit = true; //comentado 08-08-2025
                 } else
                     mensaje.General(this,"CONEXION", "","");
             }catch (SQLException ex){ mensaje.General(this,"CONEXION",ex.getMessage(),""); }

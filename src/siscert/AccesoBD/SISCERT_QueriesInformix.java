@@ -685,7 +685,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
             String libro,String foja, String folio, String idFormatFol_folLet_folNum[], String idCCT, String idHEscuela, String tablaEscuela,String escuela, String cctEscuela, String cveturno,  String juridico, String idleyenda_lugarValidacion, boolean actualizarVars, String idFormatoCert, String casoNumSolicitud, String numSolicitud, boolean cambioEnCurpONombre, String cveUnidad59) throws SQLException, Exception
     {
         String diaLetra, mesAñoLetra, fechaExpedLet, temp="", idfolim_var, casoInsertSICEEB="", numSol,escuela_str="";
-        
+        String NoControlNvo=NoControl;
         global.fecha = fecha;
         global.partirFechaEnLetra();
         //diaLetra = global.diaLetra;
@@ -775,11 +775,13 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "'"+libro.trim()+"','"+foja.trim()+"', "+idFormatFol_folLet_folNum[0]+",'"+folio.trim().toUpperCase()+"', "+idCCT+","+idHEscuela+",'"+tablaEscuela+"','"+escuela.trim().toUpperCase()+"','"+cctEscuela.trim().toUpperCase()+"','"+fecha+"','"+juridico.trim().toUpperCase()+"'," +                    
                         idleyenda_lugarValidacion+","+idFormatoCert+", '"+global.capturista+"', date(current), extend(current, hour to minute))");*/
             }else if (casoConsulta.equals("Editar")){
+                NoControlNvo = obtenerIdTabla ("idcertiregion","siscert_certificacion",global.cveunidad, global.cveplan);                        
                 if (actualizarVars){
                     temp = ", idfolim_var="+idfolim_var+" ";
                 }
                 stm.execute("UPDATE siscert_certificacion SET " +
-                        "numsolicitud=" + numSol + ", " +
+                        "numsolicitud=" + numSol + ", " + 
+                        (!global.cveunidad.equals(global.cveUnidad59) ? "idcertiregion=" + NoControlNvo + ", " : "")+        
                         "cicescinilib=" + cicescinilib + ", " +
                         "cebas= '"+(esCEBAS?"t":"f")+"', "+
                         "nombre=\""+nombre.toUpperCase()+"\"," +
@@ -809,7 +811,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         "tablaescuela='"+tablaEscuela+"', " +
                         "escuela="+escuela_str+", " +
                         "cct='"+cctEscuela.trim().toUpperCase()+"', " +
-                        "cveunidad = '"+global.cveunidad.trim().toUpperCase()+"', " +
+                        "cveunidad = '"+global.cveunidad+"', " +
                         "fecha='"+fecha+"', " +
                         "juridico='"+juridico.trim().toUpperCase()+"', " +
                         "idleyenda_lugvalid="+idleyenda_lugarValidacion+", " +
@@ -820,7 +822,10 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         " WHERE idcertiregion='"+NoControl+"' AND curp='"+respaldoCurp.toUpperCase()+"' AND cveplan = '"+global.cveplan+"' "+
                         ((global.cveunidad.equals("DSRVAL") && !cveUnidad59.equals("DSRVAL") && global.verUnidades==true) ? " AND cveunidad='"+cveUnidad59+"' " : " AND cveunidad='"+global.cveunidad+"'") ); 
             }            
-            global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControl+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveunidad+"'");
+            if(cveUnidad59!=null && !cveUnidad59.equals(global.cveunidad) && global.verUnidades==true)
+                global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControlNvo+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveUnidad59+"'");
+            else 
+                global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControl+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveunidad+"'");
         } catch (SQLException ex){ 
             if (ex.getMessage().toUpperCase().contains("UNIQUE") && ex.getMessage().toUpperCase().contains("UK_CURPNOMREG")) 
                 throw new Exception("CERTIDUP_EXISTENTE*"+verifAlumnoDuplicado (curp, ""+global.cveplan,global.cveunidad));
@@ -838,7 +843,7 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
     {
         Map datosParaQuery = new LinkedHashMap();
         String  fechaExpedLet, temp="", idfolim_var, casoInsertSICEEB="", numSol="",escuela_str="";
-        
+        String NoControlNvo=NoControl;
         global.fecha = fechaExpedicion;
         global.partirFechaEnLetra();
         fechaExpedLet = "a los "+ global.diaLetra.toLowerCase()+" días del mes de "+global.mesAñoLetra.toLowerCase();
@@ -931,10 +936,13 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         + ""+idFormatoCert+", '"+global.capturista+"', date(current), extend(current, hour to minute))");*/
 
             }else if (casoConsulta.equals("Editar")){
+                NoControlNvo = obtenerIdTabla ("idcertiregion","siscert_certificacion",global.cveunidad, global.cveplan);                        
                 if (actualizarVars){
                     temp = ", idfolim_var="+idfolim_var+" ";
                 }
                 stm.executeUpdate("UPDATE siscert_certificacion SET " +
+                        "cveunidad = '"+global.cveunidad+"', " +
+                        (!global.cveunidad.equals(global.cveUnidad59) ? "idcertiregion=" + NoControlNvo + ", " : "") +                
                         "numsolicitud=" + numSol + ", " +
                         "cicescinilib=" + cicescinidup + ", " +
                         "cicinilib_cert= " + cicinilib_cert.trim() + ", " +
@@ -979,8 +987,10 @@ public class SISCERT_QueriesInformix extends SISCERT_ConexionInformix{
                         " WHERE idcertiregion='"+NoControl+"' AND curp='"+respaldoCurp.toUpperCase()+"' AND cveplan = " + global.cveplan  +
                         ((global.cveunidad.equals("DSRVAL") && !cveUnidad59.equals("DSRVAL") && global.verUnidades==true) ? " AND cveunidad='"+cveUnidad59+"' " : " AND cveunidad='"+global.cveunidad+"'") );                                                 
             }
-            
-            global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControl+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveunidad+"'");
+            if(cveUnidad59!=null && !cveUnidad59.equals(global.cveunidad) && global.verUnidades==true)
+                global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControlNvo+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveUnidad59+"'");
+            else 
+                global.idcertificacion = this.getData("SELECT idcertificacion FROM siscert_certificacion WHERE idcertiregion='"+NoControl+"' AND curp='"+curp.trim().toUpperCase()+"' AND cveplan="+global.cveplan+" AND cveunidad='"+global.cveunidad+"'");            
         }catch (SQLException ex){ 
             if (ex.getMessage().toUpperCase().contains("UNIQUE") && ex.getMessage().toUpperCase().contains("UK_CURPNOMREG")) 
                 throw new Exception("CERTIDUP_EXISTENTE*"+verifAlumnoDuplicado (curp, ""+global.cveplan,global.cveunidad)); 
